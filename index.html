@@ -675,7 +675,7 @@ Hai kami dari Pipah Cookies sudah beroperasi sejak 2020, Kami menjual produk bak
 // Boleh ubah ikut suka. max = maksimum quantity untuk caj tu.
 const postageTiers = [
   { max: 3, fee: 5 },   // 1-3 item = RM5
-  { max: 6, fee: 7 },   // 4-6 item = RM8
+  { max: 6, fee: 8 },   // 4-6 item = RM8
   { max: 10, fee: 12 }, // 7-10 item = RM12
   { max: Infinity, fee: 15 } // 11 ke atas = RM15
 ];
@@ -807,7 +807,8 @@ function sendOrder(){
     alert('Troli kosong!');
     return;
   }
-
+<label for="orderId">No. Pesanan</label>
+<input type="text" id="orderId" name="orderId" readonly>
   let subtotal = 0;
   let qtyTotal = 0;
   let msg = `Hai, saya ingin membuat pesanan dari Pipah Cookies:\n\n` +
@@ -997,5 +998,69 @@ document.querySelectorAll('.product-slider').forEach(slider => {
   }, 3000);
 });
 </script>
+ <script>
+// 🔹 Helper: format PC + 8-digit number (e.g., PC00000001)
+function formatOrderId(num) {
+  return "PC" + num.toString().padStart(8, "0");
+}
+
+// 🔹 Get the next order number (without increasing yet)
+function getNextOrderNumber() {
+  let last = parseInt(localStorage.getItem("orderCounter") || "0", 10);
+  return formatOrderId(last + 1);
+}
+
+// 🔹 Increase the counter only after successful submit
+function incrementOrderCounter() {
+  let last = parseInt(localStorage.getItem("orderCounter") || "0", 10);
+  localStorage.setItem("orderCounter", (last + 1).toString());
+}
+
+// 🔹 When page loads, show next ID (but don't increase yet)
+window.addEventListener("DOMContentLoaded", () => {
+  const field = document.getElementById("orderId");
+  if (field) {
+    field.value = getNextOrderNumber();
+  }
+});
+
+// 🔹 Handle form submit
+document.getElementById("btn checkout")?.addEventListener("click", function(e) {
+  e.preventDefault(); // prevent default if you handle submission manually
+
+  // Get all form data
+  const orderId = document.getElementById("orderId").value;
+  const nama = document.getElementById("nama")?.value.trim();
+  const alamat = document.getElementById("alamat")?.value.trim();
+  const pesanan = document.getElementById("pesanan")?.value.trim();
+
+  if (!nama || !alamat || !pesanan) {
+    alert("⚠️ Sila lengkapkan semua maklumat sebelum hantar.");
+    return;
+  }
+
+  // Example of saving to localStorage
+  const newOrder = {
+    orderId,
+    nama,
+    alamat,
+    pesanan,
+    createdAt: new Date().toLocaleString()
+  };
+
+  const existingOrders = JSON.parse(localStorage.getItem("orders") || "[]");
+  existingOrders.push(newOrder);
+  localStorage.setItem("orders", JSON.stringify(existingOrders));
+
+  // ✅ Only now increase the order number
+  incrementOrderCounter();
+
+  alert(`✅ Pesanan berjaya dihantar!\nNo. Pesanan: ${orderId}`);
+
+  // Clear the form (but keep next order number)
+  document.getElementById("orderForm")?.reset();
+  document.getElementById("orderId").value = getNextOrderNumber();
+});
+ </script>
 </body>
 </html>
