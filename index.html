@@ -796,12 +796,16 @@ function updateCartUI(){
   }
 
  /* ---------- Send order via WhatsApp ---------- */
- function sendOrder(){
-  const orderId = document.getElementById('orderId').value; // 🆕 ambil ID pesanan
+ 
+  // --- kira postage ikut pilihan method ---
+  let postage = 0;
+  if(method === "pickup"){ 
+    postage = 0; 
+  } 
+  elsefunction sendOrder(){
   const name = document.getElementById('full-name').value.trim();
   const address = document.getElementById('full-address').value.trim();
   const method = document.getElementById('delivery-method')?.value || "pickup"; // pickup/cod/delivery
-
   if (!name || !address){
     alert('Sila isi Nama penuh dan Alamat penuh.');
     return;
@@ -813,9 +817,7 @@ function updateCartUI(){
 
   let subtotal = 0;
   let qtyTotal = 0;
-  let msg = `🧾 *Pesanan Baru Pipah Cookies*\n` +
-            `No. Pesanan: ${orderId}\n` +   // 🆕 tambah no order
-            `-------------------------\n` +
+  let msg = `Hai, saya ingin membuat pesanan dari Pipah Cookies:\n\n` +
             `Nama: ${name}\n` +
             `Alamat: ${address}\n` +
             `Penerimaan: ${method.toUpperCase()}\n\n` +
@@ -834,6 +836,32 @@ function updateCartUI(){
     postage = 0; 
   } 
   else if(method === "cod"){ 
+    postage = 0; // kalau nak letak syarat area boleh tambah sini
+  } 
+  else if(method === "delivery"){ 
+    // contoh tier (boleh adjust ikut keperluan)
+    const postageTiers = [
+      { max: 3, fee: 5 }, 
+      { max: 6, fee: 9 }, 
+      { max: 999, fee: 15 }
+    ];
+    for (let tier of postageTiers){
+      if(qtyTotal <= tier.max){
+        postage = tier.fee;
+        break;
+      }
+    }
+  }
+
+  const finalTotal = subtotal + postage;
+
+  msg += `\nSubtotal: RM ${subtotal.toFixed(2)}`;
+  msg += `\nPostage (${method.toUpperCase()}): RM ${postage.toFixed(2)}`;
+  msg += `\n👉 Jumlah Akhir: RM ${finalTotal.toFixed(2)}`;
+
+  const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`;
+  window.open(url,'_blank');
+  } if(method === "cod"){ 
     postage = 0; 
   } 
   else if(method === "delivery"){ 
