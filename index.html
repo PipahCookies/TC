@@ -822,23 +822,23 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
    
+ 
+ 
+  
+  /* ---------- Storage helpers ---------- */
+  function saveCart(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(cart)); }
  /* ---------- Send order via WhatsApp ---------- */
-   function sendOrder(){
-  const orderId = document.getElementById('orderId').value; // 🆕 ambil no pesanan
+function sendOrder() {
+  const orderId = document.getElementById('orderId').value;
   const name = document.getElementById('full-name').value.trim();
   const address = document.getElementById('full-address').value.trim();
-  cfunction showCheckoutForm(){
-    document.getElementById('checkout-form').classList.remove('hidden');
-    document.getElementById('open-checkout').style.display = 'none';
-    const panel = document.getElementById('cart-panel');
-    panel.scrollTop = panel.scrollHeight;
-   }onst method = document.getElementById('delivery-method')?.value || "pickup";
+  const method = document.getElementById('delivery-method')?.value || "pickup";
 
-  if (!name || !address){
+  if (!name || !address) {
     alert('Sila isi Nama penuh dan Alamat penuh.');
     return;
   }
-  if (cart.length === 0){
+  if (cart.length === 0) {
     alert('Troli kosong!');
     return;
   }
@@ -846,14 +846,14 @@ document.addEventListener("DOMContentLoaded", () => {
   let subtotal = 0;
   let qtyTotal = 0;
   let msg = `🧾 *Pesanan Baru Pipah Cookies*\n` +
-            `No. Pesanan: ${orderId}\n` +   // 🆕 tambah order id
+            `No. Pesanan: ${orderId}\n` +
             `-------------------------\n` +
             `Nama: ${name}\n` +
             `Alamat: ${address}\n` +
             `Penerimaan: ${method.toUpperCase()}\n\n` +
             `Pesanan:\n`;
 
-  cart.forEach(i=>{
+  cart.forEach(i => {
     const itemTotal = i.price * i.qty;
     subtotal += itemTotal;
     qtyTotal += i.qty;
@@ -862,14 +862,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // --- kira postage ikut pilihan method ---
   let postage = 0;
-  if(method === "delivery"){
+  if (method === "delivery") {
     const tiers = [
-      { max: 3, fee: 5 }, 
-      { max: 6, fee: 8 }, 
+      { max: 3, fee: 5 },
+      { max: 6, fee: 8 },
       { max: 999, fee: 12 }
     ];
-    for (let tier of tiers){
-      if(qtyTotal <= tier.max){
+    for (let tier of tiers) {
+      if (qtyTotal <= tier.max) {
         postage = tier.fee;
         break;
       }
@@ -886,13 +886,8 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("orderId").value = getNextOrderNumber();
 
   const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`;
-  window.open(url,'_blank');
-   }
- 
-  
-  /* ---------- Storage helpers ---------- */
-  function saveCart(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(cart)); }
-  function escapeHtml(text){ return String(text).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+  window.open(url, '_blank');
+} function escapeHtml(text){ return String(text).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
 
 
 const music = document.getElementById('bgmusic');
@@ -1031,69 +1026,5 @@ document.querySelectorAll('.product-slider').forEach(slider => {
   }, 3000);
 });
 </script>
- <script>
-// 🔹 Helper: format PC + 8-digit number (e.g., PC00000001)
-function formatOrderId(num) {
-  return "PC" + num.toString().padStart(8, "0");
-}
-
-// 🔹 Get the next order number (without increasing yet)
-function getNextOrderNumber() {
-  let last = parseInt(localStorage.getItem("orderCounter") || "0", 10);
-  return formatOrderId(last + 1);
-}
-
-// 🔹 Increase the counter only after successful submit
-function incrementOrderCounter() {
-  let last = parseInt(localStorage.getItem("orderCounter") || "0", 10);
-  localStorage.setItem("orderCounter", (last + 1).toString());
-}
-
-// 🔹 When page loads, show next ID (but don't increase yet)
-window.addEventListener("DOMContentLoaded", () => {
-  const field = document.getElementById("orderId");
-  if (field) {
-    field.value = getNextOrderNumber();
-  }
-});
-
-// 🔹 Handle form submit
-document.getElementById("btn checkout")?.addEventListener("click", function(e) {
-  e.preventDefault(); // prevent default if you handle submission manually
-
-  // Get all form data
-  const orderId = document.getElementById("orderId").value;
-  const nama = document.getElementById("nama")?.value.trim();
-  const alamat = document.getElementById("alamat")?.value.trim();
-  const pesanan = document.getElementById("pesanan")?.value.trim();
-
-  if (!nama || !alamat || !pesanan) {
-    alert("⚠️ Sila lengkapkan semua maklumat sebelum hantar.");
-    return;
-  }
-
-  // Example of saving to localStorage
-  const newOrder = {
-    orderId,
-    nama,
-    alamat,
-    pesanan,
-    createdAt: new Date().toLocaleString()
-  };
-
-  const existingOrders = JSON.parse(localStorage.getItem("orders") || "[]");
-  existingOrders.push(newOrder);
-  localStorage.setItem("orders", JSON.stringify(existingOrders));
-
-  // ✅ Only now increase the order number
-  incrementOrderCounter();
-
-  alert(`✅ Pesanan berjaya dihantar!\nNo. Pesanan: ${orderId}`);
-
-  // Clear the form (but keep next order number)
-  document.getElementById("orderForm")?.reset();
-  document.getElementById("orderId").value = getNextOrderNumber();
-});
- </script>
 </body>
 </html>
