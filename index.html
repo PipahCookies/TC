@@ -573,6 +573,8 @@ Hai kami dari Pipah Cookies sudah beroperasi sejak 2020, Kami menjual produk bak
 
     <!-- Checkout form (Nama & Alamat) -->
     <div id="checkout-form" class="checkout-form hidden">
+     <label for="orderId">No. Pesanan</label>
+<input type="text" id="orderId" name="orderId" readonly>
       <input id="full-name" type="text" placeholder="Nama penuh" />
       <textarea id="full-address" placeholder="Alamat penuh"></textarea>
       <button class="btn checkout" onclick="sendOrder()">Hantar Pesanan (WhatsApp)</button>
@@ -807,8 +809,7 @@ function sendOrder(){
     alert('Troli kosong!');
     return;
   }
-<label for="orderId">No. Pesanan</label>
-<input type="text" id="orderId" name="orderId" readonly>
+
   let subtotal = 0;
   let qtyTotal = 0;
   let msg = `Hai, saya ingin membuat pesanan dari Pipah Cookies:\n\n` +
