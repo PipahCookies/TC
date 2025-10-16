@@ -571,10 +571,10 @@ Hai kami dari Pipah Cookies sudah beroperasi sejak 2020, Kami menjual produk bak
 
 <div id="cart-total"></div>
 
+   <label for="orderId">No. Pesanan</label>
+<input type="text" id="orderId" name="orderId" readonly>
     <!-- Checkout form (Nama & Alamat) -->
     <div id="checkout-form" class="checkout-form hidden">
-     <label for="orderId">No. Pesanan</label>
-<input type="text" id="orderId" name="orderId" readonly>
       <input id="full-name" type="text" placeholder="Nama penuh" />
       <textarea id="full-address" placeholder="Alamat penuh"></textarea>
       <button class="btn checkout" onclick="sendOrder()">Hantar Pesanan (WhatsApp)</button>
@@ -796,14 +796,7 @@ function updateCartUI(){
   }
 
  /* ---------- Send order via WhatsApp ---------- */
-
-  /* ---------- Storage helpers ---------- */
-  function saveCart(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(cart)); }
-  function escapeHtml(text){ return String(text).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
-
-
-const music = document.getElementById('bgmusic');
-const btn = dofunction sendOrder(){
+ function sendOrder(){
   const orderId = document.getElementById('orderId').value; // 🆕 ambil ID pesanan
   const name = document.getElementById('full-name').value.trim();
   const address = document.getElementById('full-address').value.trim();
@@ -869,7 +862,13 @@ const btn = dofunction sendOrder(){
 
   const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`;
   window.open(url,'_blank');
-   }cument.getElementById('musicBtn');
+  /* ---------- Storage helpers ---------- */
+  function saveCart(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(cart)); }
+  function escapeHtml(text){ return String(text).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+
+
+const music = document.getElementById('bgmusic');
+const btn = doument.getElementById('musicBtn');
 const text = document.getElementById('musicText');
 const wrapper = document.getElementById('musicWrapper');
 let isPlaying = false;
