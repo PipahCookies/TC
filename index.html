@@ -796,7 +796,15 @@ function updateCartUI(){
   }
 
  /* ---------- Send order via WhatsApp ---------- */
-function sendOrder(){
+
+  /* ---------- Storage helpers ---------- */
+  function saveCart(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(cart)); }
+  function escapeHtml(text){ return String(text).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+
+
+const music = document.getElementById('bgmusic');
+const btn = dofunction sendOrder(){
+  const orderId = document.getElementById('orderId').value; // 🆕 ambil ID pesanan
   const name = document.getElementById('full-name').value.trim();
   const address = document.getElementById('full-address').value.trim();
   const method = document.getElementById('delivery-method')?.value || "pickup"; // pickup/cod/delivery
@@ -812,7 +820,9 @@ function sendOrder(){
 
   let subtotal = 0;
   let qtyTotal = 0;
-  let msg = `Hai, saya ingin membuat pesanan dari Pipah Cookies:\n\n` +
+  let msg = `🧾 *Pesanan Baru Pipah Cookies*\n` +
+            `No. Pesanan: ${orderId}\n` +   // 🆕 tambah no order
+            `-------------------------\n` +
             `Nama: ${name}\n` +
             `Alamat: ${address}\n` +
             `Penerimaan: ${method.toUpperCase()}\n\n` +
@@ -831,10 +841,9 @@ function sendOrder(){
     postage = 0; 
   } 
   else if(method === "cod"){ 
-    postage = 0; // kalau nak letak syarat area boleh tambah sini
+    postage = 0; 
   } 
   else if(method === "delivery"){ 
-    // contoh tier (boleh adjust ikut keperluan)
     const postageTiers = [
       { max: 3, fee: 5 }, 
       { max: 6, fee: 8 }, 
@@ -854,17 +863,13 @@ function sendOrder(){
   msg += `\nPostage (${method.toUpperCase()}): RM ${postage.toFixed(2)}`;
   msg += `\n👉 Jumlah Akhir: RM ${finalTotal.toFixed(2)}`;
 
+  // 🆕 Tambah kenaikan nombor pesanan selepas submit
+  incrementOrderCounter();
+  document.getElementById("orderId").value = getNextOrderNumber();
+
   const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`;
   window.open(url,'_blank');
-}
-
-  /* ---------- Storage helpers ---------- */
-  function saveCart(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(cart)); }
-  function escapeHtml(text){ return String(text).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
-
-
-const music = document.getElementById('bgmusic');
-const btn = document.getElementById('musicBtn');
+   }cument.getElementById('musicBtn');
 const text = document.getElementById('musicText');
 const wrapper = document.getElementById('musicWrapper');
 let isPlaying = false;
