@@ -571,13 +571,16 @@ Hai kami dari Pipah Cookies sudah beroperasi sejak 2020, Kami menjual produk bak
 
 <div id="cart-total"></div>
 
-   <label for="orderId">No. Pesanan</label>
-<input type="text" id="orderId" name="orderId" readonly>
+   
     <!-- Checkout form (Nama & Alamat) -->
     <div id="checkout-form" class="checkout-form hidden">
-      <input id="full-name" type="text" placeholder="Nama penuh" />
-      <textarea id="full-address" placeholder="Alamat penuh"></textarea>
-      <button class="btn checkout" onclick="sendOrder()">Hantar Pesanan (WhatsApp)</button>
+  <label for="orderId">No. Pesanan</label>
+  <input type="text" id="orderId" name="orderId" readonly style="background:#f4f4f4;">
+  
+  <input id="full-name" type="text" placeholder="Nama penuh" />
+  <textarea id="full-address" placeholder="Alamat penuh"></textarea>
+  
+  <button class="btn checkout" onclick="sendOrder()">Hantar Pesanan (WhatsApp)</button>
     </div>
 
     <div class="cart-actions">
@@ -794,18 +797,43 @@ function updateCartUI(){
     const panel = document.getElementById('cart-panel');
     panel.scrollTop = panel.scrollHeight;
   }
+   
+// === AUTO ORDER ID GENERATOR ===
+function formatOrderId(num) {
+  return "PC" + num.toString().padStart(8, "0");
+}
 
+function getNextOrderNumber() {
+  let last = parseInt(localStorage.getItem("orderCounter") || "0", 10);
+  return formatOrderId(last + 1);
+}
+
+function incrementOrderCounter() {
+  let last = parseInt(localStorage.getItem("orderCounter") || "0", 10);
+  localStorage.setItem("orderCounter", (last + 1).toString());
+}
+
+// === SET ORDER NUMBER ON PAGE LOAD ===
+document.addEventListener("DOMContentLoaded", () => {
+  const orderIdInput = document.getElementById("orderId");
+  if (orderIdInput) {
+    orderIdInput.value = getNextOrderNumber();
+    orderIdInput.readOnly = true;
+  }
+});
+   
  /* ---------- Send order via WhatsApp ---------- */
- 
-  // --- kira postage ikut pilihan method ---
-  let postage = 0;
-  if(method === "pickup"){ 
-    postage = 0; 
-  } 
-  elsefunction sendOrder(){
+   function sendOrder(){
+  const orderId = document.getElementById('orderId').value; // 🆕 ambil no pesanan
   const name = document.getElementById('full-name').value.trim();
   const address = document.getElementById('full-address').value.trim();
-  const method = document.getElementById('delivery-method')?.value || "pickup"; // pickup/cod/delivery
+  cfunction showCheckoutForm(){
+    document.getElementById('checkout-form').classList.remove('hidden');
+    document.getElementById('open-checkout').style.display = 'none';
+    const panel = document.getElementById('cart-panel');
+    panel.scrollTop = panel.scrollHeight;
+   }onst method = document.getElementById('delivery-method')?.value || "pickup";
+
   if (!name || !address){
     alert('Sila isi Nama penuh dan Alamat penuh.');
     return;
@@ -817,7 +845,9 @@ function updateCartUI(){
 
   let subtotal = 0;
   let qtyTotal = 0;
-  let msg = `Hai, saya ingin membuat pesanan dari Pipah Cookies:\n\n` +
+  let msg = `🧾 *Pesanan Baru Pipah Cookies*\n` +
+            `No. Pesanan: ${orderId}\n` +   // 🆕 tambah order id
+            `-------------------------\n` +
             `Nama: ${name}\n` +
             `Alamat: ${address}\n` +
             `Penerimaan: ${method.toUpperCase()}\n\n` +
@@ -832,45 +862,13 @@ function updateCartUI(){
 
   // --- kira postage ikut pilihan method ---
   let postage = 0;
-  if(method === "pickup"){ 
-    postage = 0; 
-  } 
-  else if(method === "cod"){ 
-    postage = 0; // kalau nak letak syarat area boleh tambah sini
-  } 
-  else if(method === "delivery"){ 
-    // contoh tier (boleh adjust ikut keperluan)
-    const postageTiers = [
-      { max: 3, fee: 5 }, 
-      { max: 6, fee: 9 }, 
-      { max: 999, fee: 15 }
-    ];
-    for (let tier of postageTiers){
-      if(qtyTotal <= tier.max){
-        postage = tier.fee;
-        break;
-      }
-    }
-  }
-
-  const finalTotal = subtotal + postage;
-
-  msg += `\nSubtotal: RM ${subtotal.toFixed(2)}`;
-  msg += `\nPostage (${method.toUpperCase()}): RM ${postage.toFixed(2)}`;
-  msg += `\n👉 Jumlah Akhir: RM ${finalTotal.toFixed(2)}`;
-
-  const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`;
-  window.open(url,'_blank');
-  } if(method === "cod"){ 
-    postage = 0; 
-  } 
-  else if(method === "delivery"){ 
-    const postageTiers = [
+  if(method === "delivery"){
+    const tiers = [
       { max: 3, fee: 5 }, 
       { max: 6, fee: 8 }, 
       { max: 999, fee: 12 }
     ];
-    for (let tier of postageTiers){
+    for (let tier of tiers){
       if(qtyTotal <= tier.max){
         postage = tier.fee;
         break;
@@ -879,17 +877,19 @@ function updateCartUI(){
   }
 
   const finalTotal = subtotal + postage;
-
   msg += `\nSubtotal: RM ${subtotal.toFixed(2)}`;
   msg += `\nPostage (${method.toUpperCase()}): RM ${postage.toFixed(2)}`;
   msg += `\n👉 Jumlah Akhir: RM ${finalTotal.toFixed(2)}`;
 
-  // 🆕 Tambah kenaikan nombor pesanan selepas submit
+  // 🆕 Tambah kenaikan nombor pesanan selepas hantar
   incrementOrderCounter();
   document.getElementById("orderId").value = getNextOrderNumber();
 
   const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`;
   window.open(url,'_blank');
+   }
+ 
+  
   /* ---------- Storage helpers ---------- */
   function saveCart(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(cart)); }
   function escapeHtml(text){ return String(text).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
