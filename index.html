@@ -822,11 +822,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
    
- 
- 
-  
-  /* ---------- Storage helpers ---------- */
-  function saveCart(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(cart)); }
  /* ---------- Send order via WhatsApp ---------- */
 function sendOrder() {
   const orderId = document.getElementById('orderId').value;
@@ -890,8 +885,13 @@ function sendOrder() {
 } function escapeHtml(text){ return String(text).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
 
 
+ /* ---------- Storage helpers ---------- */
+  function saveCart(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(cart)); }
+  function escapeHtml(text){ return String(text).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+
+
 const music = document.getElementById('bgmusic');
-const btn = doument.getElementById('musicBtn');
+const btn = document.getElementById('musicBtn');
 const text = document.getElementById('musicText');
 const wrapper = document.getElementById('musicWrapper');
 let isPlaying = false;
