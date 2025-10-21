@@ -61,33 +61,51 @@
   .lead{max-width:900px;margin:0 auto;color:var(--muted);line-height:1.5}
 
 /* 🔹 Product Section Layout */
-.products {
+.product-grid {
   display: flex;
   flex-wrap: wrap;
   gap: 20px;
   justify-content: center;
+  align-items: stretch; /* ✅ make all cards equal height */
 }
 
-/* 🔹 Default: 3 per line (tablet & PC) */
+/* 🔹 Product Card Styling */
 .product-card {
-  flex: 0 0 calc(33.333% - 20px); /* ✅ 3 per row */
-  height: 350px;
+  flex: 0 0 calc(33.333% - 20px); /* ✅ 3 per row (desktop/tablet) */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
   background: #fff;
   padding: 15px;
   border-radius: 10px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  overflow: hidden;
   text-align: center;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
   box-sizing: border-box;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* 🔹 Hover Effect (optional but nice) */
+.product-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+/* 🔹 Ensure product slider doesn’t stretch text */
+.product-slider {
+  flex-shrink: 0;
 }
 
 /* 🔹 Small screens (phones): 2 per line */
-@media (max-width: 600px) {
+@media (max-width: 768px) {
   .product-card {
     flex: 0 0 calc(50% - 20px);
+  }
+}
+
+/* 🔹 Extra small screens: 1 per line (optional fallback) */
+@media (max-width: 400px) {
+  .product-card {
+    flex: 0 0 100%;
   }
 }
   /* 🖼 Product Image Slider */
