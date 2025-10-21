@@ -191,6 +191,154 @@
   @media (max-width:900px){.cart-panel{right:12px;left:12px;width:auto;bottom:90px}.header-img{max-height:280px}}
   @media (max-width:520px){.nav-list{gap:9px;padding:6px}.slide{height:160px}.product-img{height:130px}}
   </style>
+  <style>
+    body {
+      font-family: "Poppins", sans-serif;
+      background: #fff8f6;
+      margin: 0;
+      padding: 0;
+    }
+
+    .testimonial-section {
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 80px 20px;
+      touch-action: pan-y;
+      background: linear-gradient(to bottom right, #fff5f7, #ffeef1);
+    }
+
+    .section-title {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #000000;
+      margin-bottom: 25px;
+      text-align: center;
+      text-shadow: 0 1px 3px rgba(255, 192, 203, 0.3);
+    }
+
+    .testimonial-bg {
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      background-position: center;
+      filter: blur(40px);
+      opacity: 0.4;
+      transition: background-image 1s ease-in-out;
+    }
+
+    .testimonial-gallery {
+      position: relative;
+      width: 90%;
+      max-width: 700px;
+      height: 420px;
+      border-radius: 30px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(255, 182, 193, 0.4);
+      border: 4px solid #000000;
+      background: #fff;
+    }
+
+    .testimonial-gallery img {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0;
+      transition: opacity 1.2s ease-in-out;
+    }
+
+    .testimonial-gallery img.active {
+      opacity: 1;
+    }
+
+    .quote {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255, 255, 255, 0.8);
+      padding: 12px 20px;
+      border-radius: 20px;
+      color: #000000;
+      font-weight: 600;
+      font-size: 1rem;
+      opacity: 0;
+      transition: opacity 1s ease-in-out, transform 1s ease-in-out;
+      text-align: center;
+      max-width: 85%;
+      box-shadow: 0 4px 10px rgba(255, 182, 193, 0.3);
+    }
+
+    .quote.active {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      max-width: 700px;
+      margin-top: 15px;
+      padding: 0 25px;
+    }
+
+    .controls button {
+      background: rgba(255, 255, 255, 0.8);
+      border: none;
+      font-size: 28px;
+      border-radius: 50%;
+      cursor: pointer;
+      width: 45px;
+      height: 45px;
+      box-shadow: 0 4px 10px rgba(255, 182, 193, 0.3);
+      color: #F7BF87;
+      font-weight: bold;
+      transition: all 0.3s;
+    }
+
+    .controls button:hover {
+      background: #ec4899;
+      color: #fff;
+    }
+
+    .dots {
+      display: flex;
+      gap: 10px;
+      margin-top: 25px;
+      justify-content: center;
+    }
+
+    .dots button {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      border: none;
+      background: #ffd6e0;
+      transition: all 0.3s;
+      cursor: pointer;
+    }
+
+    .dots button.active {
+      background: #ec4899;
+      transform: scale(1.4);
+    }
+
+    @media (max-width: 600px) {
+      .testimonial-gallery {
+        height: 300px;
+      }
+
+      .quote {
+        font-size: 0.9rem;
+        padding: 10px 14px;
+      }
+    }
+  </style>
 </head>
 <body>
 
@@ -425,14 +573,29 @@ Hai kami dari Pipah Cookies sudah beroperasi sejak 2020, Kami menjual produk bak
     </section>
 
     <!-- TESTIMONIALS -->
-    <section id="testimonials" class="section fade-up">
-      <h2>Testimoni Pelanggan</h2>
-      <div class="testimonials">
-        <blockquote>“Biskut paling sedap! Anak-anak saya suka sangat!, sekali serang habis” <cite>– Aina</cite></blockquote>
-        <blockquote>“Rangup di luar, lembut di dalam. Terbaik!” <cite>– Daniel</cite></blockquote>
-        <blockquote>“Rugi weh aritu aku beli satu je sejenis,serius sedap tak cukup rasa sebalang tu.” <cite>– Linda</cite></blockquote>
-      </div>
-    </section>
+     <section class="testimonial-section" id="testimonials">
+    <h2 class="section-title">Apa kata pelanggan kami? (boleh slide < >) </></h2>
+    <div class="testimonial-bg"></div>
+
+    <div class="testimonial-gallery">
+      <img src="images/tst1.jpg" class="active" alt="testimonial 1" />
+      <img src="images/tst2.jpg" alt="testimonial 2" />
+      <img src="images/tst3.jpg" alt="testimonial 3" />
+      <img src="images/tst.jpg" alt="testimonial 4" />
+
+      <div class="quote active">"Founder SK sendiri puji biskut brownies dan  seasalt cookies sedapp"</div>
+      <div class="quote">"The seasalt biscuits are so tasty, thank you once again"</div>
+      <div class="quote">"Sedap nya biskut pipah 🤭🤭"</div>
+      <div class="quote">"Kenapa cookies sedap giler 🤎"</div>
+    </div>
+
+    <div class="controls">
+      <button id="prev">‹</button>
+      <button id="next">›</button>
+    </div>
+
+    <div class="dots"></div>
+  </section>
 
     
     <!-- GALLERY -->
@@ -1026,5 +1189,73 @@ document.querySelectorAll('.product-slider').forEach(slider => {
   }, 3000);
 });
 </script>
+ <script>
+    const images = document.querySelectorAll(".testimonial-gallery img");
+    const quotes = document.querySelectorAll(".quote");
+    const bg = document.querySelector(".testimonial-bg");
+    const dotsContainer = document.querySelector(".dots");
+    const prevBtn = document.getElementById("prev");
+    const nextBtn = document.getElementById("next");
+    const section = document.querySelector(".testimonial-section");
+
+    let index = 0;
+    let interval;
+    let startX = 0;
+    let endX = 0;
+
+    // Create dots
+    images.forEach((_, i) => {
+      const dot = document.createElement("button");
+      dot.addEventListener("click", () => showImage(i));
+      dotsContainer.appendChild(dot);
+    });
+    const dots = dotsContainer.querySelectorAll("button");
+
+    function showImage(i) {
+      images.forEach((img, n) => img.classList.toggle("active", n === i));
+      quotes.forEach((q, n) => q.classList.toggle("active", n === i));
+      dots.forEach((dot, n) => dot.classList.toggle("active", n === i));
+      bg.style.backgroundImage = `url(${images[i].src})`;
+      index = i;
+    }
+
+    function next() {
+      index = (index + 1) % images.length;
+      showImage(index);
+    }
+
+    function prev() {
+      index = (index - 1 + images.length) % images.length;
+      showImage(index);
+    }
+
+    nextBtn.addEventListener("click", next);
+    prevBtn.addEventListener("click", prev);
+
+    // Auto slide
+    function startAuto() {
+      interval = setInterval(next, 4000);
+    }
+    function stopAuto() {
+      clearInterval(interval);
+    }
+
+    section.addEventListener("mouseenter", stopAuto);
+    section.addEventListener("mouseleave", startAuto);
+
+    // Mobile swipe
+    section.addEventListener("touchstart", (e) => {
+      startX = e.touches[0].clientX;
+    });
+    section.addEventListener("touchend", (e) => {
+      endX = e.changedTouches[0].clientX;
+      const diff = startX - endX;
+      if (Math.abs(diff) > 50) diff > 0 ? next() : prev();
+    });
+
+    // Initialize
+    showImage(index);
+    startAuto();
+ </script>
 </body>
 </html>
