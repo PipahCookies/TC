@@ -2,6 +2,8 @@
  <!doctype html>
 <html lang="ms">
 <head>
+ <link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#d2b48c">
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Pipah Cookies — Homemade rasa Premium</title>
@@ -1267,6 +1269,12 @@ document.querySelectorAll('.product-slider').forEach(slider => {
     // Initialize
     showImage(index);
     startAuto();
+ </script>
+ <script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('service-worker.js')
+    .then(() => console.log('Service Worker Registered ✅'));
+}
  </script>
 </body>
 </html>
