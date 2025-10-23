@@ -604,7 +604,78 @@ Hai kami dari Pipah Cookies sudah beroperasi sejak 2020, Kami menjual produk bak
   </a>
 </section>
     
+<!-- 🍪 PipahCookies WhatsApp Chat Ribbon -->
+<a href="https://wa.me/601121243407?text=Hai%20saya%20nak%20tanya%20tentang%20cookies%20🍪" 
+   class="whatsapp-ribbon" target="_blank">
+  <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp" />
+  <span>🤙</span>
+</a>
 
+<style>
+.whatsapp-ribbon {
+  position: fixed;
+  top: 50%;
+  right: -120px; /* start hidden off screen */
+  transform: translateY(-50%);
+  background: linear-gradient(145deg, #d2b48c, #b58b64);
+  color: #4a2e19;
+  text-decoration: none;
+  font-weight: 600;
+  padding: 10px 15px;
+  border-radius: 10px 0 0 10px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.25);
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Poppins', sans-serif;
+  opacity: 0;
+  animation: slideIn 1s ease-out forwards;
+  animation-delay: 1s;
+}
+.whatsapp-ribbon:hover {
+  background: linear-gradient(145deg, #b58b64, #d2b48c);
+  transform: translateY(-50%) translateX(-5px);
+  box-shadow: 0 5px 12px rgba(0,0,0,0.3);
+}
+.whatsapp-ribbon img {
+  width: 22px;
+  height: 22px;
+  filter: brightness(0) saturate(100%) invert(24%) sepia(11%) saturate(1097%) hue-rotate(337deg) brightness(95%) contrast(88%);
+}
+.whatsapp-ribbon span {
+  font-size: 14px;
+  color: #4a2e19;
+}
+
+/* ✨ Slide-in animation */
+@keyframes slideIn {
+  0% {
+    right: -120px;
+    opacity: 0;
+  }
+  100% {
+    right: 0;
+    opacity: 1;
+  }
+}
+
+/* 📱 Mobile Friendly */
+@media (max-width: 768px) {
+  .whatsapp-ribbon {
+    padding: 8px 10px;
+    font-size: 13px;
+    gap: 5px;
+  }
+  .whatsapp-ribbon img {
+    width: 18px;
+    height: 18px;
+  }
+  .whatsapp-ribbon span {
+    font-size: 12px;
+  }
+}
+</style>
     
     <!-- GALLERY -->
   
