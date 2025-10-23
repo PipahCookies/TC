@@ -32,7 +32,7 @@ const ctx = canvas.getContext("2d");
 
 // 🌤️ Cloud data
 let clouds = [
-  { x: 100, y: 40, size: 40, speed: 0.4 },
+  { x: 100, y: 40, size: 40, speed: 0.2 },
   { x: 400, y: 60, size: 50, speed: 0.15 },
   { x: 600, y: 30, size: 35, speed: 0.25 }
 ];
@@ -59,7 +59,7 @@ let cactus = { x: 700, y: 240, width: 30, height: 50 };
 let cookie = { x: 900, y: 150, width: 30, height: 30, img: new Image() };
 cookie.img.src = cookieImgs[Math.floor(Math.random() * cookieImgs.length)];
 
-let speed = 10;
+let speed = 6;
 let score = 0;
 let highScore = localStorage.getItem("cookieDinoHigh") || 0;
 let gameOver = false;
@@ -107,18 +107,23 @@ function update() {
   cactus.x -= speed;
   cookie.x -= speed;
 
-  if (cactus.x < -50) cactus.x = 700 + Math.random() * 300;
+  if (cactus.x < -50) {
+    // Make the cactus appear faster and more unpredictable at higher score
+    let range = 300 + Math.floor(score / 50) * 20; // increases with score
+    cactus.x = 700 + Math.random() * range;
+}
   if (cookie.x < -50) {
     cookie.x = 800 + Math.random() * 400;
     cookie.y = 130 + Math.random() * 40;
     cookie.img.src = cookieImgs[Math.floor(Math.random() * cookieImgs.length)];
   }
+    // Score and difficulty
+score += 0.1;
 
-  // Score and difficulty
-  score += 0.1;
-  if (score > 200) speed = 3 + Math.floor((score - 200) / 100) * 0.5;
+// Increase speed gradually
+speed = 6 + Math.floor(score / 100); // starts at 6, +1 every 100 points
 
-  // Collision - cactus
+   // Collision - cactus
   if (dino.x < cactus.x + cactus.width &&
       dino.x + dino.width > cactus.x &&
       dino.y < cactus.y + cactus.height &&
