@@ -168,7 +168,26 @@
   .faq{max-width:900px;margin:0 auto;text-align:left}
   .faq .q{background:#fff;padding:12px;border-radius:8px;margin-bottom:10px;box-shadow:0 6px 12px rgba(0,0,0,0.04)}
   .faq .a{margin-top:8px;color:var(--muted)}
+  
+.whatsapp-share-btn {
+  display: inline-block;
+  margin-top: 20px;
+  background: #25D366;
+  color: #fff;
+  font-family: 'Poppins', sans-serif;
+  font-size: 18px;
+  padding: 12px 25px;
+  border-radius: 25px;
+  text-decoration: none;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+}
 
+.whatsapp-share-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+  background: #1ebe57;
+}
 /* floating cart icon */
   #cart-icon{position:fixed;right:20px;bottom:20px;width:56px;height:56px;border-radius:50%;background:var(--primary);color:#fff;border:none;display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer;z-index:120;box-shadow:0 14px 30px rgba(0,0,0,0.16);transition:transform .18s}
   #cart-icon:hover{transform:scale(1.06)}
@@ -577,6 +596,12 @@ Hai kami dari Pipah Cookies sudah beroperasi sejak 2020, Kami menjual produk bak
     title="Cookie Dino Game" 
     loading="lazy">
   </iframe>
+  <!-- 💬 WhatsApp Share Button -->
+  <a href="https://wa.me/?text=Play%20Cookie%20Dino%20🍪%20on%20my%20website:%20https://pipahcookies.github.io/com/game/index.html#cookie-game"
+     target="_blank"
+     class="whatsapp-share-btn">
+     📲 Share with friends on WhatsApp
+  </a>
 </section>
     
 
@@ -1248,5 +1273,6 @@ if ('serviceWorker' in navigator) {
     .catch(err => console.error('❌ Service Worker Failed', err));
 }
  </script>
+
 </body>
 </html>
