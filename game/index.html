@@ -32,7 +32,7 @@ const ctx = canvas.getContext("2d");
 
 // 🌤️ Cloud data
 let clouds = [
-  { x: 100, y: 40, size: 40, speed: 0.2 },
+  { x: 100, y: 40, size: 40, speed: 0.4 },
   { x: 400, y: 60, size: 50, speed: 0.15 },
   { x: 600, y: 30, size: 35, speed: 0.25 }
 ];
@@ -59,7 +59,7 @@ let cactus = { x: 700, y: 240, width: 30, height: 50 };
 let cookie = { x: 900, y: 150, width: 30, height: 30, img: new Image() };
 cookie.img.src = cookieImgs[Math.floor(Math.random() * cookieImgs.length)];
 
-let speed = 3;
+let speed = 5;
 let score = 0;
 let highScore = localStorage.getItem("cookieDinoHigh") || 0;
 let gameOver = false;
