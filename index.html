@@ -1499,215 +1499,55 @@ if ('serviceWorker' in navigator) {
         }
       }
     } catch (err) {
-      console.warn("Unique flow error:", err);
-      showDebug("Unique localStorage error");
-    }
 
-    // 3) If either count is still null (network/CORS), try fallback hits.seeyoufarm
-    try {
-      if (totalCount === null) {
-        const tr = await hitsIncr(totalKey); // increments total on fallback
-        totalCount = tr && (tr.value !== undefined ? tr.value : (tr.count || null));
-      }
-      if (uniqueCount === null) {
-        const hasVisited = localStorage.getItem(localStorageKey);
-        if (hasVisited) {
-          const ur = await hitsGet(uniqueKey);
-          uniqueCount = ur && (ur.value !== undefined ? ur.value : (ur.count || null));
-        } else {
-          const ur2 = await hitsIncr(uniqueKey);
-          uniqueCount = ur2 && (ur2.value !== undefined ? ur2.value : (ur2.count || null));
-          localStorage.setItem(localStorageKey, "true");
-        }
-      }
-    } catch (err) {
-      console.warn("Fallback hits API failed:", err);
-      // final fallback: show 0 and visible error
-      showDebug("All remote counters failed: " + (err.message || err));
-    }
-
-    // Display results (use 0 if still null)
-    animate(uniqueEl, Number(uniqueCount) || 0);
-    animate(totalEl, Number(totalCount) || 0);
-
-    // If there is an explicit error message, keep debug visible
-    if (debugEl.textContent && debugEl.textContent.length > 0) debugEl.style.display = "block";
-  }
-
-  run();
-})();
-     </script><footer id="visitor-footer" style="text-align:center; background:#f8e8d0; color:#5a4a3b; padding:18px; border-top:2px solid #e2c9a7; font-family:Arial, sans-serif;">
-  <div style="display:flex; flex-direction:column; align-items:center; gap:6px;">
-    <div style="display:inline-flex; align-items:center; gap:8px;">
-      <span style="font-size:20px;">🍪</span>
-      <span style="font-weight:500;">Pelawat Unik:</span>
-      <span id="unique-count" style="font-weight:bold; font-size:18px;">⏳</span>
-    </div>
-    <div style="display:inline-flex; align-items:center; gap:8px;">
-      <span style="font-size:20px;">👣</span>
-      <span style="font-weight:500;">Jumlah Lawatan:</span>
-      <span id="total-count" style="font-weight:bold; font-size:18px;">⏳</span>
-    </div>
-    <div id="visitor-debug" style="margin-top:6px; font-size:12px; color:#9b2b2b; display:none;"></div>
-  </div>
-</footer>
+          <!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.12.3/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.3/firebase-database-compat.js"></script>
 
 <script>
-(function(){
-  const siteID = "pipahcookies";
-  const uniqueKey = "unique-visitors-v4";
-  const totalKey = "total-visits-v4";
-  const namespace = siteID;
-  const localStorageKey = `${siteID}-visited`;
-  const uniqueEl = document.getElementById("unique-count");
-  const totalEl = document.getElementById("total-count");
-  const debugEl = document.getElementById("visitor-debug");
+const firebaseConfig = {
+  apiKey: "AIzaSy....",
+  authDomain: "pipahcookiescounter.firebaseapp.com",
+  databaseURL: "https://pipahcookiescounter-default-rtdb.firebaseio.com",
+  projectId: "pipahcookiescounter",
+  storageBucket: "pipahcookiescounter.appspot.com",
+  messagingSenderId: "1234567890",
+  appId: "1:1234567890:web:abcdef123456"
+};
 
-  // Helper: animate
-  function animate(el, target) {
-    if (typeof target !== "number") { el.textContent = target; return; }
-    let current = 0;
-    const steps = 30;
-    const inc = Math.max(1, Math.floor(target / steps));
-    const timer = setInterval(() => {
-      current += inc;
-      if (current >= target) { current = target; clearInterval(timer); }
-      el.textContent = current.toLocaleString();
-    }, 20);
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+// Visitor counter
+async function updateCounters() {
+  const visitorRef = db.ref("visitors");
+  const uniqueRef = db.ref("uniqueVisitors");
+
+  // total visitor count
+  visitorRef.transaction(count => (count || 0) + 1);
+
+  // unique visitor via localStorage
+  if (!localStorage.getItem("pipahcookies_visited")) {
+    uniqueRef.transaction(count => (count || 0) + 1);
+    localStorage.setItem("pipahcookies_visited", "true");
   }
 
-  // Primary: CountAPI helpers
-  async function countapiHit(ns, key) {
-    const url = `https://api.countapi.xyz/hit/${encodeURIComponent(ns)}/${encodeURIComponent(key)}`;
-    return fetch(url).then(r => r.json());
-  }
-  async function countapiGet(ns, key) {
-    const url = `https://api.countapi.xyz/get/${encodeURIComponent(ns)}/${encodeURIComponent(key)}`;
-    return fetch(url).then(r => r.json());
-  }
-  async function countapiCreate(ns, key, value=0) {
-    const url = `https://api.countapi.xyz/create?namespace=${encodeURIComponent(ns)}&key=${encodeURIComponent(key)}&value=${value}`;
-    return fetch(url).then(r => r.json());
-  }
+  visitorRef.on("value", snap => {
+    document.getElementById("visitorCount").textContent = snap.val() || 0;
+  });
+  uniqueRef.on("value", snap => {
+    document.getElementById("uniqueCount").textContent = snap.val() || 0;
+  });
+}
 
-  // Fallback: hits.seeyoufarm API (no key needed). Increments via /incr
-  async function hitsIncr(name) {
-    // use a unique name so counters don't collide; hits uses "url" query param
-    const fakeUrl = encodeURIComponent(`https://pipahcookies/${name}`);
-    const url = `https://hits.seeyoufarm.com/api/count/incr?url=${fakeUrl}&amount=1`;
-    return fetch(url).then(r => r.json()); // returns { value: N } usually
-  }
-  async function hitsGet(name) {
-    const fakeUrl = encodeURIComponent(`https://pipahcookies/${name}`);
-    const url = `https://hits.seeyoufarm.com/api/count?url=${fakeUrl}`;
-    return fetch(url).then(r => r.json()); // returns { value: N }
-  }
-
-  // Show debug message to user (visible on mobile)
-  function showDebug(msg) {
-    debugEl.style.display = "block";
-    debugEl.textContent = msg;
-  }
-
-  async function run() {
-    uniqueEl.textContent = totalEl.textContent = "⏳";
-
-    // 1) Try CountAPI for total visits (hit every load)
-    let totalCount = null;
-    try {
-      const totalResp = await countapiHit(namespace, totalKey);
-      if (totalResp && (totalResp.value !== undefined || totalResp.count !== undefined)) {
-        totalCount = (totalResp.value !== undefined) ? totalResp.value : totalResp.count;
-      } else if (totalResp && totalResp.error) {
-        // if not found, try create and hit again
-        await countapiCreate(namespace, totalKey, 0);
-        const r2 = await countapiHit(namespace, totalKey);
-        totalCount = (r2.value !== undefined) ? r2.value : r2.count;
-      }
-    } catch (err) {
-      // network/CORS failure -> fallback later
-      console.warn("CountAPI total failed:", err);
-      showDebug("CountAPI (total) failed: " + (err.message || err));
-    }
-
-    // 2) Unique: use localStorage to decide whether to hit
-    let uniqueCount = null;
-    try {
-      const hasVisited = localStorage.getItem(localStorageKey);
-      if (hasVisited) {
-        // just GET current unique total
-        try {
-          const resp = await countapiGet(namespace, uniqueKey);
-          if (resp && (resp.value !== undefined || resp.count !== undefined)) {
-            uniqueCount = (resp.value !== undefined) ? resp.value : resp.count;
-          } else if (resp && resp.error) {
-            // create if missing
-            await countapiCreate(namespace, uniqueKey, 0);
-            const r2 = await countapiGet(namespace, uniqueKey);
-            uniqueCount = (r2.value !== undefined) ? r2.value : r2.count;
-          }
-        } catch (err2) {
-          console.warn("CountAPI unique-get failed:", err2);
-          showDebug(prev=>prev + " | unique-get failed");
-        }
-      } else {
-        // first time on this device -> hit unique counter
-        try {
-          const resp = await countapiHit(namespace, uniqueKey);
-          if (resp && (resp.value !== undefined || resp.count !== undefined)) {
-            uniqueCount = (resp.value !== undefined) ? resp.value : resp.count;
-            localStorage.setItem(localStorageKey, "true");
-          } else if (resp && resp.error) {
-            // create then hit
-            await countapiCreate(namespace, uniqueKey, 0);
-            const r2 = await countapiHit(namespace, uniqueKey);
-            uniqueCount = (r2.value !== undefined) ? r2.value : r2.count;
-            localStorage.setItem(localStorageKey, "true");
-          }
-        } catch (err3) {
-          console.warn("CountAPI unique-hit failed:", err3);
-          showDebug("CountAPI (unique) failed: " + (err3.message || err3));
-        }
-      }
-    } catch (err) {
-      console.warn("Unique flow error:", err);
-      showDebug("Unique localStorage error");
-    }
-
-    // 3) If either count is still null (network/CORS), try fallback hits.seeyoufarm
-    try {
-      if (totalCount === null) {
-        const tr = await hitsIncr(totalKey); // increments total on fallback
-        totalCount = tr && (tr.value !== undefined ? tr.value : (tr.count || null));
-      }
-      if (uniqueCount === null) {
-        const hasVisited = localStorage.getItem(localStorageKey);
-        if (hasVisited) {
-          const ur = await hitsGet(uniqueKey);
-          uniqueCount = ur && (ur.value !== undefined ? ur.value : (ur.count || null));
-        } else {
-          const ur2 = await hitsIncr(uniqueKey);
-          uniqueCount = ur2 && (ur2.value !== undefined ? ur2.value : (ur2.count || null));
-          localStorage.setItem(localStorageKey, "true");
-        }
-      }
-    } catch (err) {
-      console.warn("Fallback hits API failed:", err);
-      // final fallback: show 0 and visible error
-      showDebug("All remote counters failed: " + (err.message || err));
-    }
-
-    // Display results (use 0 if still null)
-    animate(uniqueEl, Number(uniqueCount) || 0);
-    animate(totalEl, Number(totalCount) || 0);
-
-    // If there is an explicit error message, keep debug visible
-    if (debugEl.textContent && debugEl.textContent.length > 0) debugEl.style.display = "block";
-  }
-
-  run();
-})();
+updateCounters();
 </script>
 
+<!-- Display -->
+<div style="text-align:center;margin-top:20px;font-family:sans-serif;">
+  👥 Total Visitors: <span id="visitorCount">0</span><br>
+  🌍 Unique Visitors: <span id="uniqueCount">0</span>
+</div>
 </body>
 </html>
