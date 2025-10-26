@@ -736,9 +736,91 @@ Hai kami dari Pipah Cookies sudah beroperasi sejak 2020, Kami menjual produk bak
        <p><a class="link" href="https://www.facebook.com/share/16bQFus2rd/">Facebook@pipahcookies</a></p>
       <p><a class="btn secondary" href="#" onclick="window.open('https://wa.me/601121243407','_blank')">Chat di WhatsApp</a></p>
     </section>
-   <footer style="text-align:center; background:#f8e8d0; color:#5a4a3b; padding:15px; border-top:2px solid #e2c9a7;">
-  <p>🍪 Jumlah pelawat: <span id="visitor-count" style="font-weight:bold;">0</span></p>
-   </footer>
+<footer style="text-align:center; background:#f8e8d0; color:#5a4a3b; padding:15px;">
+  🍪 Jumlah pelawat unik: <span id="visitor-count" style="font-weight:bold;">0</span>
+</footer>
+
+<script>
+const url = "<footer style="text-align:center; background:#f8e8d0; color:#5a4a3b; padding:15px;">
+  🍪 Jumlah pelawat unik: <span id="visitor-count" style="font-weight:bold;">0</span>
+</footer>
+
+<script>
+const url = "https://api.npoint.io/abcdef1234567890"; // <-- change to your own npoint link
+const storageKey = "pipahcookies-visited"; // saved in user's browser
+
+async function updateUniqueVisitor() {
+  // Check if user already counted
+  if (localStorage.getItem(storageKey)) {
+    // Already visited — just show the current total
+    const res = await fetch(url);
+    const data = await res.json();
+    document.getElementById("visitor-count").innerText = data.visitors.toLocaleString();
+    return;
+  }
+
+  try {
+    // Fetch current count
+    const getData = await fetch(url);
+    const json = await getData.json();
+    let newCount = json.visitors + 1;
+
+    // Update online counter
+    await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ visitors: newCount })
+    });
+
+    // Store mark in localStorage (so not counted again)
+    localStorage.setItem(storageKey, "true");
+
+    // Show updated number
+    document.getElementById("visitor-count").innerText = newCount.toLocaleString();
+  } catch (e) {
+    console.error("Counter error:", e);
+  }
+}
+
+updateUniqueVisitor();
+</script>"; // <-- change to your own npoint link
+const storageKey = "pipahcookies-visited"; // saved in user's browser
+
+async function updateUniqueVisitor() {
+  // Check if user already counted
+  if (localStorage.getItem(storageKey)) {
+    // Already visited — just show the current total
+    const res = await fetch(url);
+    const data = await res.json();
+    document.getElementById("visitor-count").innerText = data.visitors.toLocaleString();
+    return;
+  }
+
+  try {
+    // Fetch current count
+    const getData = await fetch(url);
+    const json = await getData.json();
+    let newCount = json.visitors + 1;
+
+    // Update online counter
+    await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ visitors: newCount })
+    });
+
+    // Store mark in localStorage (so not counted again)
+    localStorage.setItem(storageKey, "true");
+
+    // Show updated number
+    document.getElementById("visitor-count").innerText = newCount.toLocaleString();
+  } catch (e) {
+    console.error("Counter error:", e);
+  }
+}
+
+updateUniqueVisitor();
+</script>
   
 <!-- 🎵 Floating Music Button with Smart Color + Auto Hide -->
 <link href="https://fonts.googleapis.com/css2?family=Dancing+Script&display=swap" rel="stylesheet">
