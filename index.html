@@ -757,9 +757,9 @@ Hai kami dari Pipah Cookies sudah beroperasi sejak 2020, Kami menjual produk bak
     try {
       let endpoint;
       if (localStorage.getItem(storageKey)) {
-        endpoint = `https://api.countapi.xyz/get/${namespace}/${key}`;
+        endpoint = `https://api.countapi.xyz/create?namespace=pipahcookies&key=unique-visitors-v2&value=0}`;
       } else {
-        endpoint = `https://api.countapi.xyz/hit/${namespace}/${key}`;
+        endpoint = `https://api.countapi.xyz/create?namespace=pipahcookies&key=unique-visitors-v2&value=0}`;
         localStorage.setItem(storageKey, "true");
       }
 
