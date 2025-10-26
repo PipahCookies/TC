@@ -736,6 +736,9 @@ Hai kami dari Pipah Cookies sudah beroperasi sejak 2020, Kami menjual produk bak
        <p><a class="link" href="https://www.facebook.com/share/16bQFus2rd/">Facebook@pipahcookies</a></p>
       <p><a class="btn secondary" href="#" onclick="window.open('https://wa.me/601121243407','_blank')">Chat di WhatsApp</a></p>
     </section>
+   <footer style="text-align:center; background:#f8e8d0; color:#5a4a3b; padding:15px; border-top:2px solid #e2c9a7;">
+  <p>🍪 Jumlah pelawat: <span id="visitor-count" style="font-weight:bold;">0</span></p>
+   </footer>
   
 <!-- 🎵 Floating Music Button with Smart Color + Auto Hide -->
 <link href="https://fonts.googleapis.com/css2?family=Dancing+Script&display=swap" rel="stylesheet">
@@ -1362,6 +1365,21 @@ if ('serviceWorker' in navigator) {
     .catch(err => console.error('❌ Service Worker Failed', err));
 }
  </script>
+<script>
+  // Use CountAPI (free, no signup)
+  const counterKey = 'pipahcookies-visitor-counter'; // change to your site name
 
+  async function updateVisitorCount() {
+    try {
+      const response = await fetch(`https://api.countapi.xyz/hit/${counterKey}/visits`);
+      const data = await response.json();
+      document.getElementById('visitor-count').innerText = data.value.toLocaleString('en-US');
+    } catch (error) {
+      console.error('Visitor counter error:', error);
+    }
+  }
+
+  updateVisitorCount();
+</script>
 </body>
 </html>
