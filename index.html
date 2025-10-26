@@ -1416,21 +1416,6 @@ if ('serviceWorker' in navigator) {
     .catch(err => console.error('❌ Service Worker Failed', err));
 }
  </script>
-<script>
-  // Use CountAPI (free, no signup)
-  const counterKey = 'pipahcookies-visitor-counter'; // change to your site name
 
-  async function updateVisitorCount() {
-    try {
-      const response = await fetch(`https://api.countapi.xyz/hit/${counterKey}/visits`);
-      const data = await response.json();
-      document.getElementById('visitor-count').innerText = data.value.toLocaleString('en-US');
-    } catch (error) {
-      console.error('Visitor counter error:', error);
-    }
-  }
-
-  updateVisitorCount();
-</script>
 </body>
 </html>
