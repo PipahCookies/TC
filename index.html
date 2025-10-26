@@ -709,7 +709,7 @@ Hai kami dari Pipah Cookies sudah beroperasi sejak 2020, Kami menjual produk bak
       </div>
     </section>
 
-<!-- 🍪 Customer Comment Section -->
+ <!-- 🍪 Customer Comment Section -->
 <section id="comments" style="background:#f7f3ef;padding:30px;border-radius:20px;margin:40px auto;max-width:700px;">
   <h2 style="text-align:center;color:#5a3e36;">💬 Komen Pelanggan</h2>
   <form id="commentForm" style="margin-top:20px;">
@@ -725,8 +725,8 @@ Hai kami dari Pipah Cookies sudah beroperasi sejak 2020, Kami menjual produk bak
 
   <div id="commentList" style="margin-top:25px;"></div>
 </section>
-   
-   
+
+
     <!-- CONTACT -->
     <section id="contact" class="section fade-up">
       <h2>Hubungi Kami</h2>
@@ -737,59 +737,8 @@ Hai kami dari Pipah Cookies sudah beroperasi sejak 2020, Kami menjual produk bak
       <p><a class="btn secondary" href="#" onclick="window.open('https://wa.me/601121243407','_blank')">Chat di WhatsApp</a></p>
     </section>
    
-<footer style="text-align:center; background:#f8e8d0; color:#5a4a3b; padding:20px; border-top:2px solid #e2c9a7; font-family:'Poppins', sans-serif;">
-  <div style="display:inline-flex; align-items:center; gap:8px;">
-    <span style="font-size:22px;">🍪</span>
-    <span style="font-weight:500;">Visited by:</span>
-    <span id="visitor-count" style="font-weight:bold; font-size:20px;">0</span>
-  </div>
-</footer>
+  
 
-<script>
-  const namespace = "pipahcookies";
-  const key = "unique-visitors-v2";
-  const storageKey = "pipahcookies-has-visited";
-
-  async function updateUniqueCounter() {
-    const display = document.getElementById("visitor-count");
-    display.textContent = "⏳";
-
-    try {
-      let endpoint;
-      if (localStorage.getItem(storageKey)) {
-        endpoint = `https://api.countapi.xyz/create?namespace=pipahcookies&key=unique-visitors-v2&value=0}`;
-      } else {
-        endpoint = `https://api.countapi.xyz/create?namespace=pipahcookies&key=unique-visitors-v2&value=0}`;
-        localStorage.setItem(storageKey, "true");
-      }
-
-      const res = await fetch(endpoint);
-      const data = await res.json();
-      const targetValue = data.value;
-
-      // smooth animation
-      let current = 0;
-      const duration = 800;
-      const steps = 40;
-      const increment = targetValue / steps;
-      const interval = duration / steps;
-
-      const counterAnim = setInterval(() => {
-        current += increment;
-        if (current >= targetValue) {
-          current = targetValue;
-          clearInterval(counterAnim);
-        }
-        display.textContent = Math.floor(current).toLocaleString("en-US");
-      }, interval);
-    } catch (err) {
-      console.error("Visitor counter error:", err);
-      display.textContent = "⚠️ Error";
-    }
-  }
-
-  updateUniqueCounter();
-       </script>
   
 <!-- 🎵 Floating Music Button with Smart Color + Auto Hide -->
 <link href="https://fonts.googleapis.com/css2?family=Dancing+Script&display=swap" rel="stylesheet">
@@ -1416,6 +1365,75 @@ if ('serviceWorker' in navigator) {
     .catch(err => console.error('❌ Service Worker Failed', err));
 }
  </script>
+ <footer style="text-align:center; background:#f8e8d0; color:#5a4a3b; padding:20px; border-top:2px solid #e2c9a7; font-family:'Poppins', sans-serif;">
+  <div style="display:flex; flex-direction:column; align-items:center; gap:8px;">
+    <div style="display:inline-flex; align-items:center; gap:8px;">
+      <span style="font-size:22px;">🍪</span>
+      <span style="font-weight:500;">Pelawat Unik:</span>
+      <span id="unique-count" style="font-weight:bold; font-size:20px;">0</span>
+    </div>
+    <div style="display:inline-flex; align-items:center; gap:8px;">
+      <span style="font-size:22px;">👣</span>
+      <span style="font-weight:500;">Jumlah Lawatan:</span>
+      <span id="total-count" style="font-weight:bold; font-size:20px;">0</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+const siteID = "pipahcookies"; // change if you clone this for another site
+const uniqueKey = `${siteID}-unique-visitors`;
+const totalKey = `${siteID}-total-visits`;
+const localStorageKey = `${siteID}-visited`;
+
+async function updateCounters() {
+  const uniqueDisplay = document.getElementById("unique-count");
+  const totalDisplay = document.getElementById("total-count");
+  uniqueDisplay.textContent = totalDisplay.textContent = "⏳";
+
+  try {
+    // --- Total visits (every visit increases)
+    const totalRes = await fetch(`https://api.freecounterapi.com/api/v1/counter/${totalKey}/hit`);
+    const totalData = await totalRes.json();
+
+    // --- Unique visitors (only first time increases)
+    let uniqueRes;
+    if (localStorage.getItem(localStorageKey)) {
+      uniqueRes = await fetch(`https://api.freecounterapi.com/api/v1/counter/${uniqueKey}`);
+    } else {
+      uniqueRes = await fetch(`https://api.freecounterapi.com/api/v1/counter/${uniqueKey}/hit`);
+      localStorage.setItem(localStorageKey, "true");
+    }
+    const uniqueData = await uniqueRes.json();
+
+    // Animate both counters
+    animateCounter(uniqueDisplay, uniqueData.count);
+    animateCounter(totalDisplay, totalData.count);
+
+  } catch (err) {
+    console.error("Visitor counter error:", err);
+    uniqueDisplay.textContent = totalDisplay.textContent = "⚠️ Error";
+  }
+}
+
+function animateCounter(el, targetValue) {
+  let current = 0;
+  const steps = 30;
+  const increment = targetValue / steps;
+  const interval = 25;
+
+  const counterAnim = setInterval(() => {
+    current += increment;
+    if (current >= targetValue) {
+      current = targetValue;
+      clearInterval(counterAnim);
+    }
+    el.textContent = Math.floor(current).toLocaleString("en-US");
+  }, interval);
+}
+
+updateCounters();
+</script>
 
 </body>
 </html>
