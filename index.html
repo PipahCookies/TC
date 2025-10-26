@@ -736,118 +736,60 @@ Hai kami dari Pipah Cookies sudah beroperasi sejak 2020, Kami menjual produk bak
        <p><a class="link" href="https://www.facebook.com/share/16bQFus2rd/">Facebook@pipahcookies</a></p>
       <p><a class="btn secondary" href="#" onclick="window.open('https://wa.me/601121243407','_blank')">Chat di WhatsApp</a></p>
     </section>
-<footer style="text-align:center; background:#f8e8d0; color:#5a4a3b; padding:15px;">
-  🍪 Jumlah Pelawat Unik: <span id="visitor-count" style="font-weight:bold;">Loading...</span>
+   
+<footer style="text-align:center; background:#f8e8d0; color:#5a4a3b; padding:20px; border-top:2px solid #e2c9a7; font-family:'Poppins', sans-serif;">
+  <div style="display:inline-flex; align-items:center; gap:8px;">
+    <span style="font-size:22px;">🍪</span>
+    <span style="font-weight:500;">Visited by:</span>
+    <span id="visitor-count" style="font-weight:bold; font-size:20px;">0</span>
+  </div>
 </footer>
 
 <script>
-  const counterKey = "pipahcookies-unique-visitors-v2"; // your unique key
-  const storageKey = "pipahcookies-has-visited"; // saved locally per device
+  const namespace = "pipahcookies";
+  const key = "unique-visitors-v2";
+  const storageKey = "pipahcookies-has-visited";
 
   async function updateUniqueCounter() {
     const display = document.getElementById("visitor-count");
+    display.textContent = "⏳";
 
     try {
-      // Check if this device has visited before
-      const hasVisited = localStorage.getItem(storageKey);
-
-      if (hasVisited) {
-        // Just fetch current total (no +1)
-        const res = await fetch(`https://api.countapi.xyz/get/${counterKey}`);
-        const data = await res.json();
-        display.textContent = data.value.toLocaleString("en-US");
+      let endpoint;
+      if (localStorage.getItem(storageKey)) {
+        endpoint = `https://api.countapi.xyz/get/${namespace}/${key}`;
       } else {
-        // Add +1 for a new unique visitor
-        const res = await fetch(`https://api.countapi.xyz/hit/${counterKey}`);
-        const data = await res.json();
+        endpoint = `https://api.countapi.xyz/hit/${namespace}/${key}`;
         localStorage.setItem(storageKey, "true");
-        display.textContent = data.value.toLocaleString("en-US");
       }
-    } catch (error) {
-      console.error("Visitor counter error:", error);
+
+      const res = await fetch(endpoint);
+      const data = await res.json();
+      const targetValue = data.value;
+
+      // smooth animation
+      let current = 0;
+      const duration = 800;
+      const steps = 40;
+      const increment = targetValue / steps;
+      const interval = duration / steps;
+
+      const counterAnim = setInterval(() => {
+        current += increment;
+        if (current >= targetValue) {
+          current = targetValue;
+          clearInterval(counterAnim);
+        }
+        display.textContent = Math.floor(current).toLocaleString("en-US");
+      }, interval);
+    } catch (err) {
+      console.error("Visitor counter error:", err);
       display.textContent = "⚠️ Error";
     }
   }
 
   updateUniqueCounter();
-</script>
-
-<script>
-const url = "https://api.npoint.io/abcdef1234567890"; // <-- change to your own npoint link
-const storageKey = "pipahcookies-visited"; // saved in user's browser
-
-async function updateUniqueVisitor() {
-  // Check if user already counted
-  if (localStorage.getItem(storageKey)) {
-    // Already visited — just show the current total
-    const res = await fetch(url);
-    const data = await res.json();
-    document.getElementById("visitor-count").innerText = data.visitors.toLocaleString();
-    return;
-  }
-
-  try {
-    // Fetch current count
-    const getData = await fetch(url);
-    const json = await getData.json();
-    let newCount = json.visitors + 1;
-
-    // Update online counter
-    await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ visitors: newCount })
-    });
-
-    // Store mark in localStorage (so not counted again)
-    localStorage.setItem(storageKey, "true");
-
-    // Show updated number
-    document.getElementById("visitor-count").innerText = newCount.toLocaleString();
-  } catch (e) {
-    console.error("Counter error:", e);
-  }
-}
-
-updateUniqueVisitor();
-</script>"; // <-- change to your own npoint link
-const storageKey = "pipahcookies-visited"; // saved in user's browser
-
-async function updateUniqueVisitor() {
-  // Check if user already counted
-  if (localStorage.getItem(storageKey)) {
-    // Already visited — just show the current total
-    const res = await fetch(url);
-    const data = await res.json();
-    document.getElementById("visitor-count").innerText = data.visitors.toLocaleString();
-    return;
-  }
-
-  try {
-    // Fetch current count
-    const getData = await fetch(url);
-    const json = await getData.json();
-    let newCount = json.visitors + 1;
-
-    // Update online counter
-    await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ visitors: newCount })
-    });
-
-    // Store mark in localStorage (so not counted again)
-    localStorage.setItem(storageKey, "true");
-
-    // Show updated number
-    document.getElementById("visitor-count").innerText = newCount.toLocaleString();
-  } catch (e) {
-    console.error("Counter error:", e);
-  }
-}
-
-updateUniqueVisitor();
-</script>
+       </script>
   
 <!-- 🎵 Floating Music Button with Smart Color + Auto Hide -->
 <link href="https://fonts.googleapis.com/css2?family=Dancing+Script&display=swap" rel="stylesheet">
