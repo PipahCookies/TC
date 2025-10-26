@@ -1366,8 +1366,7 @@ if ('serviceWorker' in navigator) {
 }
  </script>
 
-
-          <!-- Firebase SDK -->
+<!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/10.12.3/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.3/firebase-database-compat.js"></script>
 
@@ -1381,24 +1380,27 @@ const firebaseConfig = {
   messagingSenderId: "1038900448087",
   appId: "1:1038900448087:web:a46586f21e9ae989708c12"
 };
+
 // Initialize Firebase
-const app = initializeApp(firebaseConfig);
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
 
-// Visitor counter
+// update counters
 async function updateCounters() {
-  const visitorRef = db.ref("visitors");
-  const uniqueRef = db.ref("uniqueVisitors");
+  const totalRef = db.ref("visitors/total");
+  const uniqueRef = db.ref("visitors/unique");
 
-  // total visitor count
-  visitorRef.transaction(count => (count || 0) + 1);
+  // increase total every visit
+  totalRef.transaction(count => (count || 0) + 1);
 
-  // unique visitor via localStorage
+  // count unique per device/browser
   if (!localStorage.getItem("pipahcookies_visited")) {
     uniqueRef.transaction(count => (count || 0) + 1);
     localStorage.setItem("pipahcookies_visited", "true");
   }
 
-  visitorRef.on("value", snap => {
+  // live update display
+  totalRef.on("value", snap => {
     document.getElementById("visitorCount").textContent = snap.val() || 0;
   });
   uniqueRef.on("value", snap => {
