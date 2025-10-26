@@ -737,13 +737,40 @@ Hai kami dari Pipah Cookies sudah beroperasi sejak 2020, Kami menjual produk bak
       <p><a class="btn secondary" href="#" onclick="window.open('https://wa.me/601121243407','_blank')">Chat di WhatsApp</a></p>
     </section>
 <footer style="text-align:center; background:#f8e8d0; color:#5a4a3b; padding:15px;">
-  🍪 Jumlah pelawat unik: <span id="visitor-count" style="font-weight:bold;">0</span>
+  🍪 Jumlah Pelawat Unik: <span id="visitor-count" style="font-weight:bold;">Loading...</span>
 </footer>
 
 <script>
-const url = "<footer style="text-align:center; background:#f8e8d0; color:#5a4a3b; padding:15px;">
-  🍪 Jumlah pelawat unik: <span id="visitor-count" style="font-weight:bold;">0</span>
-</footer>
+  const counterKey = "pipahcookies-unique-visitors-v2"; // your unique key
+  const storageKey = "pipahcookies-has-visited"; // saved locally per device
+
+  async function updateUniqueCounter() {
+    const display = document.getElementById("visitor-count");
+
+    try {
+      // Check if this device has visited before
+      const hasVisited = localStorage.getItem(storageKey);
+
+      if (hasVisited) {
+        // Just fetch current total (no +1)
+        const res = await fetch(`https://api.countapi.xyz/get/${counterKey}`);
+        const data = await res.json();
+        display.textContent = data.value.toLocaleString("en-US");
+      } else {
+        // Add +1 for a new unique visitor
+        const res = await fetch(`https://api.countapi.xyz/hit/${counterKey}`);
+        const data = await res.json();
+        localStorage.setItem(storageKey, "true");
+        display.textContent = data.value.toLocaleString("en-US");
+      }
+    } catch (error) {
+      console.error("Visitor counter error:", error);
+      display.textContent = "⚠️ Error";
+    }
+  }
+
+  updateUniqueCounter();
+</script>
 
 <script>
 const url = "https://api.npoint.io/abcdef1234567890"; // <-- change to your own npoint link
