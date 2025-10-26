@@ -1491,18 +1491,16 @@ if ('serviceWorker' in navigator) {
 
 <script>
 const firebaseConfig = {
-  apiKey: "AIzaSy....",
-  authDomain: "pipahcookiescounter.firebaseapp.com",
-  databaseURL: "https://pipahcookiescounter-default-rtdb.firebaseio.com",
-  projectId: "pipahcookiescounter",
-  storageBucket: "pipahcookiescounter.appspot.com",
-  messagingSenderId: "1234567890",
-  appId: "1:1234567890:web:abcdef123456"
+  apiKey: "AIzaSyB1zNzsKmXXLVsOVGnVeGwlT_0uX3XqdO0",
+  authDomain: "pipahcookies-order.firebaseapp.com",
+  databaseURL: "https://pipahcookies-order-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "pipahcookies-order",
+  storageBucket: "pipahcookies-order.firebasestorage.app",
+  messagingSenderId: "1038900448087",
+  appId: "1:1038900448087:web:a46586f21e9ae989708c12"
 };
-
 // Initialize Firebase
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
+const app = initializeApp(firebaseConfig);
 
 // Visitor counter
 async function updateCounters() {
