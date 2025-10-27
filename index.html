@@ -1596,17 +1596,25 @@ function closePipahPopup() {
 </div>
 
 <script>
-let deferredPrompt = null;
-const installBtn = document.getElementById('footerInstallBtn');
-const iosPopup = document.getElementById('iosHintPopup');
-const closeBtn = iosPopup.querySelector('.closeBtn');
-const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent.toLowerCase()) && !window.MSStream;
+let installPromptEvent = null;
 
-// Android/Desktop
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
-  deferredPrompt = e;
-  installBtn.style.display = 'inline-block'; // show when ready
+  installPromptEvent = e;
+  installBtn.style.display = 'inline-block';
+});
+
+installBtn.addEventListener('click', async () => {
+  if (isIOS) {
+    showIOSHint();
+  } else if (installPromptEvent) {
+    installPromptEvent.prompt();
+    const { outcome } = await installPromptEvent.userChoice;
+    if (outcome === 'accepted') console.log('✅ PWA installed!');
+    installPromptEvent = null;
+  } else {
+    alert("Please use Chrome, Edge, or Brave to install PipahCookies app.");
+  }
 });
 
 // Click event
