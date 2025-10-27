@@ -1400,13 +1400,15 @@ async function updateCounters() {
   }
 
   // live update display
-  totalRef.on("value", snap => {
-    document.getElementById("visitorCount").textContent = snap.val() || 0;
-  });
-  uniqueRef.on("value", snap => {
-    document.getElementById("uniqueCount").textContent = snap.val() || 0;
-  });
-}
+totalRef.on("value", snap => {
+  const el = document.getElementById("visitorCount");
+  if (el) el.textContent = snap.val() || 0;
+});
+
+uniqueRef.on("value", snap => {
+  const el = document.getElementById("uniqueCount");
+  if (el) el.textContent = snap.val() || 0;
+});
 
 updateCounters();
 </script>
