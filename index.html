@@ -1419,6 +1419,117 @@ updateCounters();
   🍪 Visitors: <span id="visitorCount">0</span><br>
   🌍 Visitors International: <span id="uniqueCount">0</span>
 </div>
- 
+ <!-- 🌟 PipahCookies Install Suggestion Popup -->
+<style>
+#pipahInstallPopup {
+  position: fixed;
+  bottom: -70px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255,248,242,0.92);
+  border: 1.5px solid var(--primary,#A67734);
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  padding: 8px 18px;
+  font-family: "Poppins",sans-serif;
+  text-align: center;
+  z-index: 9999;
+  display: none;
+  transition: bottom .4s ease, opacity .4s ease;
+  opacity: 0;
+}
+#pipahInstallPopup.show {
+  display: block;
+  bottom: 20px;
+  opacity: 1;
+}
+#pipahInstallPopup p {
+  color: var(--primary,#A67734);
+  font-weight: 600;
+  margin: 0;
+  cursor: pointer;
+}
+#pipahInstallPopup .closeBtn {
+  position: absolute;
+  top: 2px;
+  right: 8px;
+  font-size: 16px;
+  color: #666;
+  cursor: pointer;
+}
+</style>
+
+<div id="pipahInstallPopup">
+  <span class="closeBtn" onclick="closePipahPopup()">×</span>
+  <p id="pipahInstallText"></p>
+</div>
+
+<script>
+let deferredPrompt = null;
+let installReady = false;
+let isInstalled = false;
+
+// ✅ Detect if app already installed
+window.addEventListener("appinstalled", () => {
+  isInstalled = true;
+  localStorage.setItem("pipahInstalled", "true");
+  closePipahPopup();
+});
+if (window.matchMedia('(display-mode: standalone)').matches || localStorage.getItem("pipahInstalled") === "true") {
+  isInstalled = true;
+}
+
+// ✅ Catch browser install prompt
+window.addEventListener("beforeinstallprompt", (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  installReady = true;
+});
+
+// ✅ Update popup text based on device & availability
+function updateInstallText() {
+  const text = document.getElementById("pipahInstallText");
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+
+  if (isIOS) {
+    text.textContent = "Add to Homescreen ⬇️";
+    text.onclick = null;
+  } else if (installReady && deferredPrompt) {
+    text.textContent = "Install PipahCookies now";
+    text.onclick = async () => {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === "accepted") {
+        console.log("PWA Installed!");
+        localStorage.setItem("pipahInstalled", "true");
+      }
+      deferredPrompt = null;
+      closePipahPopup();
+    };
+  } else {
+    text.textContent = "Install PipahCookies now";
+    text.onclick = () => alert("Use Chrome, Edge, or Brave to install PipahCookies.");
+  }
+}
+
+// ✅ Show popup after 5 seconds if not installed
+window.addEventListener("load", () => {
+  if (!isInstalled) {
+    setTimeout(() => {
+      const popup = document.getElementById("pipahInstallPopup");
+      updateInstallText();
+      popup.style.display = "block";
+      setTimeout(() => popup.classList.add("show"), 50);
+    }, 5000);
+  }
+});
+
+// ✅ Close button function
+function closePipahPopup() {
+  const popup = document.getElementById("pipahInstallPopup");
+  popup.classList.remove("show");
+  setTimeout(() => popup.style.display = "none", 400);
+}
+</script>
 </body>
 </html>
