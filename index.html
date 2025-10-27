@@ -1531,7 +1531,8 @@ function closePipahPopup() {
   setTimeout(() => popup.style.display = "none", 400);
 }
 </script>
-<!-- 🌟 Footer Install Button -->
+
+ <!-- 🌟 Footer Install Button -->
 <style>
 #footerInstallBtn {
   background: var(--primary, #A67734);
@@ -1553,20 +1554,7 @@ function closePipahPopup() {
   transform: translateY(-2px);
 }
 
-
-</style>
-
-<footer id="installAppSection" style="text-align:center; padding:20px 0;">
-  <button id="footerInstallBtn">Install app PipahCookies sekarang 🍪</button>
-</footer>
-
-<div id="iosHintPopup">
-  <span>Add to Homescreen now 📱</span>
-  <button class="closeBtn" aria-label="Close">×</button>
-</div>
-
-<script>
-const installBtn = document.getElementById('footerInstallBt#iosHintPopup {
+#iosHintPopup {
   position: fixed;
   left: 50%;
   bottom: -100px;
@@ -1603,7 +1591,20 @@ const installBtn = document.getElementById('footerInstallBt#iosHintPopup {
 
 #iosHintPopup.show {
   animation: slideUpFade 0.6s ease forwards;
- }n');
+}
+</style>
+
+<footer id="installAppSection" style="text-align:center; padding:20px 0;">
+  <button id="footerInstallBtn">Install app PipahCookies sekarang 🍪</button>
+</footer>
+
+<div id="iosHintPopup">
+  <span>Add to Homescreen now 📱</span>
+  <button class="closeBtn" aria-label="Close">×</button>
+</div>
+
+<script>
+const installBtn = document.getElementById('footerInstallBtn');
 const iosPopup = document.getElementById('iosHintPopup');
 const closeBtn = iosPopup.querySelector('.closeBtn');
 
