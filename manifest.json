@@ -1,8 +1,9 @@
 {
+  "id": "/?source=pwa",
   "name": "PipahCookies",
   "short_name": "PipahCookies",
   "description": "Homemade Fresh & Tasty Cookies 🍪",
-  "start_url": "/",
+  "start_url": "/index.html",
   "scope": "/",
   "display": "standalone",
   "background_color": "#fff8f0",
