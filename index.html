@@ -1532,43 +1532,141 @@ function closePipahPopup() {
 }
 </script>
 
- <!-- 🌟 Footer Install Button -->
-<script>
-const installBtn = document.getElementById('footerInstallBtn');
-let pipahFooterPrompt = null; // ✅ renamed to avoid duplicate variable conflict
-const isIOS = /iphone|ipad|ipod/i.test(window.navigator.userAgent.toLowerCase());
-const isInStandaloneMode = ('standalone' in window.navigator) && window.navigator.standalone;
-
-// 🟢 Show install button when PWA install prompt is available
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  pipahFooterPrompt = e;
-  installBtn.style.display = 'inline-block';
-});
-
-// 🟢 Handle install button click
-installBtn.addEventListener('click', async () => {
-  if (isIOS) {
-    showIOSHint();
-  } else if (pipahFooterPrompt) {
-    pipahFooterPrompt.prompt();
-    const { outcome } = await pipahFooterPrompt.userChoice;
-    if (outcome === 'accepted') console.log('✅ PWA installed!');
-    pipahFooterPrompt = null;
-  } else {
-    alert("Please use Chrome, Edge, or Brave to install PipahCookies app.");
+<!-- 🌟 Footer Install Button -->
+<style>
+  #footerInstallBtn {
+    background: var(--primary, #A67734);
+    color: #fff;
+    border: none;
+    border-radius: 25px;
+    padding: 10px 22px;
+    font-family: "Poppins", sans-serif;
+    font-weight: 600;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    display: none; /* hidden until prompt available */
+    margin-top: 12px;
   }
+  #footerInstallBtn:hover {
+    background: var(--primary-dark, #8b5e2b);
+    transform: translateY(-2px);
+  }
+
+  /* iOS hint popup */
+  #iosHintPopup {
+    position: fixed;
+    left: 50%;
+    bottom: -100px;
+    transform: translateX(-50%);
+    background: rgba(255, 248, 242, 0.96);
+    color: var(--primary, #A67734);
+    font-family: "Poppins", sans-serif;
+    padding: 14px 22px;
+    border-radius: 18px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+    font-weight: 600;
+    opacity: 0;
+    transition: bottom 0.6s ease, opacity 0.6s ease;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  #iosHintPopup.show {
+    bottom: 35px;
+    opacity: 1;
+  }
+
+  #iosHintPopup .closeBtn {
+    background: none;
+    border: none;
+    color: var(--primary-dark, #8b5e2b);
+    font-size: 18px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-left: 6px;
+  }
+  #iosHintPopup .closeBtn:hover {
+    color: #c56a23;
+  }
+</style>
+
+<footer id="installAppSection" style="text-align:center; padding:20px 0;">
+  <button id="footerInstallBtn">Install app PipahCookies sekarang 🍪</button>
+</footer>
+
+<div id="iosHintPopup">
+  <span>Add to Homescreen now 📱</span>
+  <button class="closeBtn" aria-label="Close">×</button>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const installBtn = document.getElementById("footerInstallBtn");
+  const iosPopup = document.getElementById("iosHintPopup");
+  const closeBtn = iosPopup.querySelector(".closeBtn");
+
+  if (!installBtn) return; // Prevents null errors
+
+  let deferredPrompt = null;
+  const isIOS = /iphone|ipad|ipod/i.test(window.navigator.userAgent.toLowerCase());
+  const isInStandaloneMode = "standalone" in window.navigator && window.navigator.standalone;
+
+  // ✅ Handle beforeinstallprompt (Android/Chrome)
+  window.addEventListener("beforeinstallprompt", (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    installBtn.style.display = "inline-block";
+  });
+
+  // ✅ Install button click
+  installBtn.addEventListener("click", async () => {
+    if (isIOS) {
+      showIOSHint();
+    } else if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === "accepted") console.log("✅ PWA installed!");
+      deferredPrompt = null;
+    } else {
+      alert("Please use Chrome, Edge, or Brave to install PipahCookies app.");
+    }
+  });
+
+  // ✅ Auto-hide button if already installed
+  if (isInStandaloneMode || window.matchMedia("(display-mode: standalone)").matches) {
+    installBtn.style.display = "none";
+  }
+
+  // ✅ Auto-show iOS hint if not installed
+  window.addEventListener("load", () => {
+    if (isIOS && !isInStandaloneMode) {
+      setTimeout(showIOSHint, 2500);
+    }
+
+    // If URL has #installapp, scroll to install section
+    if (window.location.hash === "#installapp") {
+      document
+        .getElementById("installAppSection")
+        ?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  });
+
+  // ✅ iOS Hint Popup Control
+  function showIOSHint() {
+    iosPopup.classList.add("show");
+    clearTimeout(showIOSHint.hideTimeout);
+    showIOSHint.hideTimeout = setTimeout(() => {
+      iosPopup.classList.remove("show");
+    }, 6000);
+  }
+
+  closeBtn.addEventListener("click", () => iosPopup.classList.remove("show"));
 });
-
-// 🔹 Optional: hide button if already installed
-if (isInStandaloneMode || window.matchMedia('(display-mode: standalone)').matches) {
-  installBtn.style.display = 'none';
-}
-
-// 🔹 Function for iOS instructions
-function showIOSHint() {
-  alert("iPhone/iPad users: Tap the Share button → 'Add to Home Screen' to install PipahCookies 🍪");
-}
 </script>
+ 
 </body>
 </html>
