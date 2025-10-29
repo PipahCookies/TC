@@ -684,7 +684,16 @@ Hai kami dari Pipah Cookies sudah beroperasi sejak 2020, Kami menjual produk bak
 
 </section>
     <!-- GALLERY -->
-  
+  <!-- Gallery Section -->
+<section id="gallery">
+  <iframe 
+      src="gallery.html" 
+      width="100%" 
+      style="border:none;" 
+      id="galleryIframe" 
+      scrolling="no">
+  </iframe>
+</section>
 
     <section id="gallery" class="section fade-up">
     
@@ -1674,6 +1683,15 @@ document.addEventListener("DOMContentLoaded", () => {
   closeBtn.addEventListener("click", () => iosPopup.classList.remove("show"));
 });
 </script>
+ <script>
+  // Listen to messages from iframe (gallery.html)
+  window.addEventListener('message', function(e) {
+    if (e.data.galleryHeight) {
+      const iframe = document.getElementById('galleryIframe');
+      iframe.style.height = e.data.galleryHeight + 'px';
+    }
+  });
+ </script>
  
 </body>
 </html>
