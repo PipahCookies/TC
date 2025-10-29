@@ -6,13 +6,11 @@
 <title>3D Card Gallery Sync</title>
 <style>
 body {
-  margin:0;
-  font-family:'Poppins',sans-serif;
-  background:linear-gradient(135deg,#f8f5f0,#f2ede8);
-  display:flex;
-  justify-content:center;
-  padding-top:20px;
-  padding-bottom:20px;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .gallery-wrapper {
@@ -64,12 +62,11 @@ body {
 
 /* Thumbnails */
 .thumb-row {
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  margin-top:20px;
-  gap:10px;
-  overflow:hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 15px 0 5px 0; /* top 15px, bottom 5px */
+  gap: 10px;
 }
 
 .thumb-viewport{width:350px;overflow:hidden;}
@@ -107,7 +104,7 @@ body {
 <body>
 
 <div class="gallery-wrapper">
-  <div class="gallery-title">Swipe it to see more</div>
+  <div class="gallery-title">Our Gallery</div>
 
   <div class="gallery-container" id="gallery">
     <div class="card active"><video src="images/video.mp4" autoplay muted loop></video></div>
