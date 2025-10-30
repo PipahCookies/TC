@@ -225,71 +225,112 @@ body {
     <button id="viewerClose" class="close-btn" aria-label="Close viewer">&times;</button>
   </div>
 </div>
-
 <script>
 document.addEventListener('DOMContentLoaded', () => {
+  const gallery = document.getElementById('gallery');
+  const cards = Array.from(gallery.querySelectorAll('.card'));
+  const thumbViewport = document.getElementById('thumbViewport');
+  const thumbTrack = document.getElementById('thumbTrack');
+  const thumbs = Array.from(thumbTrack.querySelectorAll('.thumb'));
   const viewer = document.getElementById('mediaViewer');
+  const viewerContent = viewer.querySelector('.viewer-content');
   const viewerImg = document.getElementById('viewerImage');
   const viewerVid = document.getElementById('viewerVideo');
-  const closeBtn = document.getElementById('viewerClose');
-  const viewerContent = document.querySelector('.viewer-content');
+  const viewerClose = document.getElementById('viewerClose');
 
-  const allMedia = Array.from(document.querySelectorAll('img, video'));
-  let currentIndex = -1;
+  let activeIndex = 0;
+  let isDragging = false;
+  let startX = 0;
 
-  allMedia.forEach((el, idx) => {
-    el.style.cursor = 'pointer';
-    el.addEventListener('click', (e) => {
-      e.preventDefault();
-      openViewer(idx);
+  // --- Set Active Card & Thumbnail ---
+  function setActive(index) {
+    activeIndex = (index + cards.length) % cards.length;
+    cards.forEach((c, i) => {
+      c.classList.toggle('active', i === activeIndex);
+      c.classList.toggle('prev', i === activeIndex - 1);
+      c.classList.toggle('next', i === activeIndex + 1);
+      c.classList.toggle('hidden', i !== activeIndex && i !== activeIndex -1 && i !== activeIndex +1);
     });
-  });
+    thumbs.forEach((t, i) => t.classList.toggle('active', i === activeIndex));
+    centerThumb();
+    if(viewer.classList.contains('show')) showViewer(activeIndex);
+  }
 
-  function openViewer(index) {
-    currentIndex = index;
-    const el = allMedia[index];
-    document.body.style.overflow = 'hidden';
-    viewerImg.style.display = 'none';
-    viewerVid.style.display = 'none';
-    viewer.classList.add('show');
+  // --- Center active thumbnail ---
+  function centerThumb() {
+    const thumb = thumbs[activeIndex];
+    if (!thumb) return;
+    const offset = thumb.offsetLeft + thumb.offsetWidth / 2 - thumbViewport.offsetWidth / 2;
+    thumbViewport.scrollTo({ left: offset, behavior: 'smooth' });
+  }
 
-    if (el.tagName === 'IMG') {
-      viewerImg.src = el.src;
-      viewerImg.style.display = 'block';
-    } else if (el.tagName === 'VIDEO') {
-      const src = el.currentSrc || el.src;
-      viewerVid.src = src;
-      viewerVid.style.display = 'block';
+  // --- Swipe / Drag Control ---
+  function dragControl(container, onSwipe){
+    let dragging = false, startX = 0, diff = 0;
+    container.addEventListener('touchstart', e => { dragging=true; startX = e.touches[0].clientX; });
+    container.addEventListener('touchmove', e => { if(dragging) diff = e.touches[0].clientX - startX; });
+    container.addEventListener('touchend', e => { if(dragging){ if(Math.abs(diff)>30) onSwipe(diff<0?1:-1); dragging=false; diff=0; }});
+
+    // mouse drag
+    container.addEventListener('mousedown', e => { dragging=true; startX=e.clientX; e.preventDefault(); });
+    container.addEventListener('mousemove', e => { if(dragging) diff=e.clientX-startX; });
+    container.addEventListener('mouseup', e => { if(dragging){ if(Math.abs(diff)>30) onSwipe(diff<0?1:-1); dragging=false; diff=0; }});
+    container.addEventListener('mouseleave', e => { dragging=false; diff=0; });
+  }
+
+  // --- Apply swipe/drag to gallery, thumbnails, viewer ---
+  dragControl(gallery, d=>setActive(activeIndex+d));
+  dragControl(thumbViewport, d=>setActive(activeIndex+d));
+  dragControl(viewerContent, d=>setActive(activeIndex+d));
+
+  // --- Click on thumbnails ---
+  thumbs.forEach((t,i) => t.addEventListener('click', ()=>setActive(i)));
+
+  // --- Open viewer ---
+  cards.forEach((c,i)=>c.addEventListener('click', ()=>openViewer(i)));
+
+  function showViewer(index){
+    const media = cards[index].querySelector('img, video');
+    if(!media) return;
+    viewerImg.style.display = media.tagName==='IMG'?'block':'none';
+    viewerVid.style.display = media.tagName==='VIDEO'?'block':'none';
+    if(media.tagName==='IMG') viewerImg.src = media.src;
+    if(media.tagName==='VIDEO'){
+      viewerVid.src = media.currentSrc||media.src;
       viewerVid.load();
       viewerVid.play().catch(()=>{});
     }
   }
 
-  function closeViewer() {
+  function openViewer(index){
+    viewer.classList.add('show');
+    document.body.style.overflow='hidden';
+    setActive(index);
+  }
+
+  function closeViewer(){
     viewer.classList.remove('show');
-    viewerImg.src = '';
     viewerVid.pause();
     viewerVid.removeAttribute('src');
     viewerVid.load();
-    document.body.style.overflow = '';
+    document.body.style.overflow='';
   }
 
-  // Close on clicking blank space (outside content)
-  viewer.addEventListener('click', (e) => {
-    if (e.target === viewer) closeViewer();
+  viewerClose.addEventListener('click', closeViewer);
+  viewer.addEventListener('click', e=>{ if(e.target===viewer) closeViewer(); });
+
+  // --- Keyboard Navigation ---
+  document.addEventListener('keydown', e=>{
+    if(e.key==='ArrowRight') setActive(activeIndex+1);
+    if(e.key==='ArrowLeft') setActive(activeIndex-1);
+    if(e.key==='Escape') closeViewer();
   });
 
-  // Close button
-  closeBtn.addEventListener('click', closeViewer);
-
-  // Keyboard Esc key
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && viewer.classList.contains('show')) {
-      closeViewer();
-    }
-  });
+  // --- Initialize ---
+  setActive(0);
 });
 </script>
+  
 
 </body>
 </html>
