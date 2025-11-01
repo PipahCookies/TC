@@ -371,6 +371,71 @@
       }
     }
   </style>
+ <!-- Invoice preview modal CSS -->
+<style>
+/* preview modal */
+#invoicePreviewModal {
+  position: fixed;
+  inset: 0;
+  display: none;
+  z-index: 10050;
+  align-items: center;
+  justify-content: center;
+  background: rgba(12,12,12,0.55);
+  padding: 24px;
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+}
+#invoicePreviewModal.show { display: flex; }
+
+#invoicePreviewCard {
+  width: 95%;
+  max-width: 820px;
+  height: 85vh;
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 18px 40px rgba(0,0,0,0.35);
+}
+
+#invoicePreviewHeader {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid #eee;
+  background: linear-gradient(90deg, #fffaf0, #fff8f2);
+}
+
+#invoicePreviewHeader .title { font-weight:700; color:#5a3e1b; }
+#invoicePreviewHeader .controls { display:flex; gap:8px; align-items:center; }
+
+.preview-btn {
+  padding:8px 12px;
+  border-radius:8px;
+  border:none;
+  cursor:pointer;
+  font-weight:700;
+}
+
+.preview-btn.primary { background:#A67734; color:#fff; }
+.preview-btn.ghost { background:#f4f4f4; color:#333; }
+
+#invoicePreviewFrame {
+  flex:1;
+  border:0;
+  width:100%;
+  height:100%;
+}
+
+/* small screens tweaks */
+@media (max-width:520px) {
+  #invoicePreviewCard { height: 92vh; max-width: 98%; }
+  .preview-btn { padding:8px 10px; font-size:14px; }
+}
+</style>
 </head>
 <body>
 
@@ -847,6 +912,31 @@ Hai kami dari Pipah Cookies sudah beroperasi sejak 2020, Kami menjual produk bak
     
    
   </aside>
+ <!-- Floating invoice popup (you already have this, keep it) -->
+<div id="invoicePopup">
+  <p id="invoicePopupText">💾 Muat turun invoice?</p>
+  <div>
+    <button class="yesBtn" onclick="openInvoicePreview()">Ya, muat turun</button>
+    <button class="noBtn" onclick="hideInvoicePopup()">Tak, terima kasih</button>
+  </div>
+</div>
+
+<!-- Invoice preview modal -->
+<div id="invoicePreviewModal" aria-hidden="true">
+  <div id="invoicePreviewCard" role="dialog" aria-modal="true" aria-label="Invoice preview">
+    <div id="invoicePreviewHeader">
+      <div class="title">Preview Invoice</div>
+      <div class="controls">
+        <button class="preview-btn ghost" onclick="closeInvoicePreview()">Close</button>
+        <!-- download link will be filled dynamically -->
+        <a id="invoiceDownloadLink" class="preview-btn primary" download>Download PDF</a>
+      </div>
+    </div>
+
+    <!-- PDF preview iframe -->
+    <iframe id="invoicePreviewFrame" sandbox="allow-same-origin allow-forms allow-scripts"></iframe>
+  </div>
+</div>
 
   <!-- ========== SCRIPT ========== -->
   <script>
@@ -1376,6 +1466,137 @@ document.addEventListener("DOMContentLoaded", () => {
       iframe.style.height = e.data.galleryHeight + 'px';
     }
   });
+ </script>
+ <script>
+/* --- Improved Invoice Preview System with Date & Time --- */
+
+// helper: format date nicely (e.g., 01/11/2025 5:45 PM)
+function getFormattedDateTime() {
+  const now = new Date();
+  return now.toLocaleString('en-MY', {
+    day: '2-digit', month: '2-digit', year: 'numeric',
+    hour: '2-digit', minute: '2-digit', hour12: true
+  });
+}
+
+// generate jsPDF blob with logo, orderId, and date
+async function generateInvoiceBlob() {
+  if (!window.currentInvoice || !window.currentInvoice.pdfText || !window.currentInvoice.orderId) {
+    console.error('No invoice data available');
+    return null;
+  }
+  if (!window.jspdf || !window.jspdf.jsPDF) {
+    console.error('jsPDF not loaded');
+    return null;
+  }
+
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF({ unit: 'pt', format: 'a4' });
+  const left = 40;
+  const top = 40;
+  const lineHeight = 14;
+  const maxWidth = pdf.internal.pageSize.getWidth() - left * 2;
+
+  // === HEADER SECTION ===
+  let y = top;
+
+  // Try to draw your PipahCookies logo
+  try {
+    const logo = document.querySelector('img[src*="Picsart_25-10-22_03-43-13-940.png"], img.logo, img#pipahLogo');
+    if (logo && logo.complete) {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const w = Math.min(120, logo.naturalWidth);
+      const h = (logo.naturalHeight / logo.naturalWidth) * w;
+      canvas.width = w; canvas.height = h;
+      ctx.drawImage(logo, 0, 0, w, h);
+      const dataUrl = canvas.toDataURL('image/png');
+      pdf.addImage(dataUrl, 'PNG', left, y, w, h);
+      y += h + 12;
+    }
+  } catch(e){}
+
+  // Invoice Title
+  pdf.setFont('Helvetica', 'bold');
+  pdf.setFontSize(16);
+  pdf.text('PipahCookies Invoice', left, y);
+  y += 20;
+
+  // Date and Order ID
+  pdf.setFont('Helvetica', 'normal');
+  pdf.setFontSize(12);
+  const dateTime = getFormattedDateTime();
+  pdf.text(`Order ID: ${window.currentInvoice.orderId}`, left, y);
+  y += 14;
+  pdf.text(`Date: ${dateTime}`, left, y);
+  y += 20;
+
+  // === BODY TEXT ===
+  const text = window.currentInvoice.pdfText;
+  const lines = pdf.splitTextToSize(text, maxWidth);
+  pdf.text(lines, left, y);
+
+  // Return blob
+  return pdf.output('blob');
+}
+
+// open preview modal
+let __invoiceBlobUrl = null;
+async function openInvoicePreview() {
+  hideInvoicePopup();
+
+  const blob = await generateInvoiceBlob();
+  if (!blob) {
+    alert('Gagal menghasilkan invoice. Cuba lagi.');
+    return;
+  }
+
+  if (__invoiceBlobUrl) URL.revokeObjectURL(__invoiceBlobUrl);
+  __invoiceBlobUrl = URL.createObjectURL(blob);
+
+  const iframe = document.getElementById('invoicePreviewFrame');
+  iframe.src = __invoiceBlobUrl;
+
+  const dl = document.getElementById('invoiceDownloadLink');
+  const filename = `PipahCookies_${window.currentInvoice.orderId}.pdf`;
+  dl.href = __invoiceBlobUrl;
+  dl.setAttribute('download', filename);
+
+  // 🕒 Update header text to show Order ID and Date/Time
+  const dateTime = getFormattedDateTime();
+  const headerTitle = document.querySelector('#invoicePreviewHeader .title');
+  headerTitle.textContent = `Invoice ${window.currentInvoice.orderId} — ${dateTime}`;
+
+  const modal = document.getElementById('invoicePreviewModal');
+  modal.classList.add('show');
+  modal.setAttribute('aria-hidden', 'false');
+}
+
+function closeInvoicePreview() {
+  const modal = document.getElementById('invoicePreviewModal');
+  modal.classList.remove('show');
+  modal.setAttribute('aria-hidden', 'true');
+
+  const iframe = document.getElementById('invoicePreviewFrame');
+  iframe.src = 'about:blank';
+
+  const dl = document.getElementById('invoiceDownloadLink');
+  dl.href = '#';
+  dl.removeAttribute('download');
+
+  if (__invoiceBlobUrl) {
+    URL.revokeObjectURL(__invoiceBlobUrl);
+    __invoiceBlobUrl = null;
+  }
+}
+
+function hideInvoicePopup() {
+  document.getElementById('invoicePopup')?.classList.remove('show');
+}
+
+async function downloadInvoice() {
+  await openInvoicePreview();
+}
  </script>
  
 </body>
