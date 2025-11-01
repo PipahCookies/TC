@@ -800,7 +800,46 @@ Hai kami dari Pipah Cookies sudah beroperasi sejak 2020, Kami menjual produk bak
 .spinning {
   animation: spinDisk 6s linear infinite;
 }
-  
+ </style>
+  <style>
+#invoicePopup {
+  position: fixed;
+  bottom: -100px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #fffdf9;
+  border: 2px solid #A67734;
+  border-radius: 14px;
+  padding: 15px 25px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+  font-family: "Poppins", sans-serif;
+  text-align: center;
+  z-index: 9999;
+  opacity: 0;
+  transition: all 0.5s ease;
+}
+#invoicePopup.show {
+  bottom: 40px;
+  opacity: 1;
+}
+#invoicePopup button {
+  margin: 8px;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-family: inherit;
+}
+#invoicePopup .yesBtn {
+  background: #A67734;
+  color: #fff;
+}
+#invoicePopup .noBtn {
+  background: #ddd;
+  color: #333;
+}
+
 </style>
 
   </main>
@@ -850,6 +889,13 @@ Hai kami dari Pipah Cookies sudah beroperasi sejak 2020, Kami menjual produk bak
     
    
   </aside>
+ <div id="invoicePopup">
+  <p id="invoicePopupText">💾 Muat turun invoice?</p>
+  <div>
+    <button class="yesBtn" onclick="downloadInvoice()">Ya, muat turun</button>
+    <button class="noBtn" onclick="hideInvoicePopup()">Tak, terima kasih</button>
+  </div>
+ </div>
 
   <!-- ========== SCRIPT ========== -->
   <script>
@@ -1084,7 +1130,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
    
  /* ---------- Send order via WhatsApp ---------- */
-function sendOrder() {
+async function sendOrder() {
   const orderId = document.getElementById('orderId').value;
   const name = document.getElementById('full-name').value.trim();
   const address = document.getElementById('full-address').value.trim();
@@ -1101,22 +1147,35 @@ function sendOrder() {
 
   let subtotal = 0;
   let qtyTotal = 0;
-  let msg = `🧾 *Pesanan Baru Pipah Cookies*\n` +
-            `No. Pesanan: ${orderId}\n` +
-            `-------------------------\n` +
-            `Nama: ${name}\n` +
-            `Alamat: ${address}\n` +
-            `Penerimaan: ${method.toUpperCase()}\n\n` +
-            `Pesanan:\n`;
+  let totalDiscount = 0;
+  let msg = `🧾 *Pesanan Baru Pipah Cookies*\nNo. Pesanan: ${orderId}\n-------------------------\nNama: ${name}\nAlamat: ${address}\nPenerimaan: ${method.toUpperCase()}\n\n🍪 *Butiran Pesanan:*\n`;
+  let pdfText = `PipahCookies - Resit Pesanan\n\nNo. Pesanan: ${orderId}\nNama: ${name}\nAlamat: ${address}\nPenerimaan: ${method.toUpperCase()}\n\nButiran Pesanan:\n`;
 
   cart.forEach(i => {
-    const itemTotal = i.price * i.qty;
-    subtotal += itemTotal;
     qtyTotal += i.qty;
-    msg += `${i.qty} × ${i.name} (RM ${itemTotal.toFixed(2)})\n`;
+    let originalPrice = i.price;
+    let discountedPrice = originalPrice;
+    let discountText = '';
+
+    if (i.qty >= MOQ) {
+      discountedPrice = originalPrice * (1 - DISCOUNT_PERCENT / 100);
+      const discountAmt = (originalPrice - discountedPrice) * i.qty;
+      totalDiscount += discountAmt;
+      discountText = ` (−${DISCOUNT_PERCENT}% OFF)`;
+    }
+
+    const itemTotal = discountedPrice * i.qty;
+    subtotal += itemTotal;
+
+    if (i.qty >= MOQ) {
+      msg += `${i.qty} × ${i.name}${discountText}\n→ (RM${originalPrice.toFixed(2)} → RM${discountedPrice.toFixed(2)} each) = RM${itemTotal.toFixed(2)}\n`;
+      pdfText += `${i.qty} × ${i.name}${discountText}\n  RM${originalPrice.toFixed(2)} → RM${discountedPrice.toFixed(2)} = RM${itemTotal.toFixed(2)}\n`;
+    } else {
+      msg += `${i.qty} × ${i.name} = RM${itemTotal.toFixed(2)}\n`;
+      pdfText += `${i.qty} × ${i.name} = RM${itemTotal.toFixed(2)}\n`;
+    }
   });
 
-  // --- kira postage ikut pilihan method ---
   let postage = 0;
   if (method === "delivery") {
     const tiers = [
@@ -1133,19 +1192,39 @@ function sendOrder() {
   }
 
   const finalTotal = subtotal + postage;
-  msg += `\nSubtotal: RM ${subtotal.toFixed(2)}`;
-  msg += `\nPostage (${method.toUpperCase()}): RM ${postage.toFixed(2)}`;
-  msg += `\n👉 Jumlah Akhir: RM ${finalTotal.toFixed(2)}`;
+  msg += `\n💸 Diskaun Jumlah: -RM ${totalDiscount.toFixed(2)}\nSubtotal: RM ${(subtotal + totalDiscount).toFixed(2)}\nPostage (${method.toUpperCase()}): RM ${postage.toFixed(2)}\n👉 *Jumlah Akhir: RM ${finalTotal.toFixed(2)}*\n\nTerima kasih membeli *PipahCookies 🍪*`;
 
-  // 🆕 Tambah kenaikan nombor pesanan selepas hantar
+  pdfText += `\nDiskaun Jumlah: -RM ${totalDiscount.toFixed(2)}\nSubtotal: RM ${(subtotal + totalDiscount).toFixed(2)}\nPostage (${method.toUpperCase()}): RM ${postage.toFixed(2)}\nJumlah Akhir: RM ${finalTotal.toFixed(2)}\n\nTerima kasih membeli PipahCookies 🍪`;
+
+  // ✅ Store PDF text temporarily for download
+  window.currentInvoice = { orderId, pdfText };
+
+  // ✅ Show floating popup
+  const popup = document.getElementById('invoicePopup');
+  document.getElementById('invoicePopupText').textContent = `💾 Muat turun invoice (${orderId})?`;
+  popup.classList.add('show');
+
+  // ✅ Continue WhatsApp redirect
   incrementOrderCounter();
   document.getElementById("orderId").value = getNextOrderNumber();
-
   const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`;
   window.open(url, '_blank');
-} function escapeHtml(text){ return String(text).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+}
 
-
+// ✅ Popup handlers
+function hideInvoicePopup() {
+  document.getElementById('invoicePopup').classList.remove('show');
+}
+function downloadInvoice() {
+  const { jsPDF } = window.jspdf;
+  const data = window.currentInvoice;
+  if (!data) return;
+  const pdf = new jsPDF();
+  pdf.setFontSize(12);
+  pdf.text(data.pdfText, 15, 20);
+  pdf.save(`PipahCookies_${data.orderId}.pdf`);
+  hideInvoicePopup();
+}
  /* ---------- Storage helpers ---------- */
   function saveCart(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(cart)); }
   function escapeHtml(text){ return String(text).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
