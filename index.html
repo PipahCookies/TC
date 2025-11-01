@@ -676,10 +676,8 @@ Hai kami dari Pipah Cookies sudah beroperasi sejak 2020, Kami menjual produk bak
     </div>
 
     <div class="dots"></div>
-  </section>
-  
-         
-<section id="gallery" style="background-color: #fafafa; padding: 60px 0;">
+     </section>
+     <section id="gallery" style="background-color: #fafafa; padding: 60px 0;">
   <iframe src="3dGallery.html" width="400" height="400" style="border:none;"></iframe>
 
 </section>
@@ -800,46 +798,7 @@ Hai kami dari Pipah Cookies sudah beroperasi sejak 2020, Kami menjual produk bak
 .spinning {
   animation: spinDisk 6s linear infinite;
 }
- </style>
-  <style>
-#invoicePopup {
-  position: fixed;
-  bottom: -100px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #fffdf9;
-  border: 2px solid #A67734;
-  border-radius: 14px;
-  padding: 15px 25px;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.2);
-  font-family: "Poppins", sans-serif;
-  text-align: center;
-  z-index: 9999;
-  opacity: 0;
-  transition: all 0.5s ease;
-}
-#invoicePopup.show {
-  bottom: 40px;
-  opacity: 1;
-}
-#invoicePopup button {
-  margin: 8px;
-  padding: 8px 16px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 600;
-  font-family: inherit;
-}
-#invoicePopup .yesBtn {
-  background: #A67734;
-  color: #fff;
-}
-#invoicePopup .noBtn {
-  background: #ddd;
-  color: #333;
-}
-
+  
 </style>
 
   </main>
@@ -849,7 +808,6 @@ Hai kami dari Pipah Cookies sudah beroperasi sejak 2020, Kami menjual produk bak
     <span class="icon">🛒</span>
     <span id="cart-badge" class="badge">0</span>
   </button>
-
   <!-- CART PANEL -->
   <aside id="cart-panel" class="cart-panel" aria-live="polite" aria-hidden="true">
     <div class="cart-header">
@@ -889,13 +847,6 @@ Hai kami dari Pipah Cookies sudah beroperasi sejak 2020, Kami menjual produk bak
     
    
   </aside>
- <div id="invoicePopup">
-  <p id="invoicePopupText">💾 Muat turun invoice?</p>
-  <div>
-    <button class="yesBtn" onclick="downloadInvoice()">Ya, muat turun</button>
-    <button class="noBtn" onclick="hideInvoicePopup()">Tak, terima kasih</button>
-  </div>
- </div>
 
   <!-- ========== SCRIPT ========== -->
   <script>
@@ -983,7 +934,7 @@ Hai kami dari Pipah Cookies sudah beroperasi sejak 2020, Kami menjual produk bak
     icon.classList.add('added');
     setTimeout(()=> icon.classList.remove('added'), 480);
   }
- /* ---------- Tier Postage Config ---------- */
+   /* ---------- Tier Postage Config ---------- */
 // Boleh ubah ikut suka. max = maksimum quantity untuk caj tu.
 const postageTiers = [
   { max: 3, fee: 5 },   // 1-3 item = RM5
@@ -1062,9 +1013,8 @@ function updateCartUI(){
   badge.textContent = count;
 
   saveCart();
-}
-
-  /* ---------- Change cart qty ---------- */
+   }
+   /* ---------- Change cart qty ---------- */
   function changeCartQty(index, delta){
     if (!cart[index]) return;
     cart[index].qty += delta;
@@ -1130,7 +1080,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
    
  /* ---------- Send order via WhatsApp ---------- */
-async function sendOrder() {
+function sendOrder() {
   const orderId = document.getElementById('orderId').value;
   const name = document.getElementById('full-name').value.trim();
   const address = document.getElementById('full-address').value.trim();
@@ -1147,35 +1097,22 @@ async function sendOrder() {
 
   let subtotal = 0;
   let qtyTotal = 0;
-  let totalDiscount = 0;
-  let msg = `🧾 *Pesanan Baru Pipah Cookies*\nNo. Pesanan: ${orderId}\n-------------------------\nNama: ${name}\nAlamat: ${address}\nPenerimaan: ${method.toUpperCase()}\n\n🍪 *Butiran Pesanan:*\n`;
-  let pdfText = `PipahCookies - Resit Pesanan\n\nNo. Pesanan: ${orderId}\nNama: ${name}\nAlamat: ${address}\nPenerimaan: ${method.toUpperCase()}\n\nButiran Pesanan:\n`;
+  let msg = `🧾 *Pesanan Baru Pipah Cookies*\n` +
+            `No. Pesanan: ${orderId}\n` +
+            `-------------------------\n` +
+            `Nama: ${name}\n` +
+            `Alamat: ${address}\n` +
+            `Penerimaan: ${method.toUpperCase()}\n\n` +
+            `Pesanan:\n`;
 
   cart.forEach(i => {
-    qtyTotal += i.qty;
-    let originalPrice = i.price;
-    let discountedPrice = originalPrice;
-    let discountText = '';
-
-    if (i.qty >= MOQ) {
-      discountedPrice = originalPrice * (1 - DISCOUNT_PERCENT / 100);
-      const discountAmt = (originalPrice - discountedPrice) * i.qty;
-      totalDiscount += discountAmt;
-      discountText = ` (−${DISCOUNT_PERCENT}% OFF)`;
-    }
-
-    const itemTotal = discountedPrice * i.qty;
+    const itemTotal = i.price * i.qty;
     subtotal += itemTotal;
-
-    if (i.qty >= MOQ) {
-      msg += `${i.qty} × ${i.name}${discountText}\n→ (RM${originalPrice.toFixed(2)} → RM${discountedPrice.toFixed(2)} each) = RM${itemTotal.toFixed(2)}\n`;
-      pdfText += `${i.qty} × ${i.name}${discountText}\n  RM${originalPrice.toFixed(2)} → RM${discountedPrice.toFixed(2)} = RM${itemTotal.toFixed(2)}\n`;
-    } else {
-      msg += `${i.qty} × ${i.name} = RM${itemTotal.toFixed(2)}\n`;
-      pdfText += `${i.qty} × ${i.name} = RM${itemTotal.toFixed(2)}\n`;
-    }
+    qtyTotal += i.qty;
+    msg += `${i.qty} × ${i.name} (RM ${itemTotal.toFixed(2)})\n`;
   });
 
+  // --- kira postage ikut pilihan method ---
   let postage = 0;
   if (method === "delivery") {
     const tiers = [
@@ -1192,39 +1129,18 @@ async function sendOrder() {
   }
 
   const finalTotal = subtotal + postage;
-  msg += `\n💸 Diskaun Jumlah: -RM ${totalDiscount.toFixed(2)}\nSubtotal: RM ${(subtotal + totalDiscount).toFixed(2)}\nPostage (${method.toUpperCase()}): RM ${postage.toFixed(2)}\n👉 *Jumlah Akhir: RM ${finalTotal.toFixed(2)}*\n\nTerima kasih membeli *PipahCookies 🍪*`;
-
-  pdfText += `\nDiskaun Jumlah: -RM ${totalDiscount.toFixed(2)}\nSubtotal: RM ${(subtotal + totalDiscount).toFixed(2)}\nPostage (${method.toUpperCase()}): RM ${postage.toFixed(2)}\nJumlah Akhir: RM ${finalTotal.toFixed(2)}\n\nTerima kasih membeli PipahCookies 🍪`;
-
-  // ✅ Store PDF text temporarily for download
-  window.currentInvoice = { orderId, pdfText };
-
-  // ✅ Show floating popup
-  const popup = document.getElementById('invoicePopup');
-  document.getElementById('invoicePopupText').textContent = `💾 Muat turun invoice (${orderId})?`;
-  popup.classList.add('show');
-
-  // ✅ Continue WhatsApp redirect
+  msg += `\nSubtotal: RM ${subtotal.toFixed(2)}`;
+  msg += `\nPostage (${method.toUpperCase()}): RM ${postage.toFixed(2)}`;
+  msg += `\n👉 Jumlah Akhir: RM ${finalTotal.toFixed(2)}`;
+   // 🆕 Tambah kenaikan nombor pesanan selepas hantar
   incrementOrderCounter();
   document.getElementById("orderId").value = getNextOrderNumber();
+
   const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`;
   window.open(url, '_blank');
-}
+} function escapeHtml(text){ return String(text).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
 
-// ✅ Popup handlers
-function hideInvoicePopup() {
-  document.getElementById('invoicePopup').classList.remove('show');
-}
-function downloadInvoice() {
-  const { jsPDF } = window.jspdf;
-  const data = window.currentInvoice;
-  if (!data) return;
-  const pdf = new jsPDF();
-  pdf.setFontSize(12);
-  pdf.text(data.pdfText, 15, 20);
-  pdf.save(`PipahCookies_${data.orderId}.pdf`);
-  hideInvoicePopup();
-}
+
  /* ---------- Storage helpers ---------- */
   function saveCart(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(cart)); }
   function escapeHtml(text){ return String(text).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
@@ -1339,297 +1255,6 @@ btn.addEventListener('click', async () => {
 });
 
 </script>
-   <script>
-document.querySelectorAll('.product-slider').forEach(slider => {
-  const imgs = slider.querySelectorAll('.product-img');
-  const dots = slider.querySelectorAll('.dot');
-  let index = 0;
-
-  function showSlide(i) {
-    imgs.forEach(img => img.classList.remove('active'));
-    dots.forEach(dot => dot.classList.remove('active'));
-    imgs[i].classList.add('active');
-    dots[i].classList.add('active');
-  }
-
-  dots.forEach((dot, i) => {
-    dot.addEventListener('click', () => {
-      index = i;
-      showSlide(index);
-    });
-  });
-
-  // Auto-slide every 3 seconds
-  setInterval(() => {
-    index = (index + 1) % imgs.length;
-    showSlide(index);
-  }, 3000);
-});
-</script>
- <script>
-    const images = document.querySelectorAll(".testimonial-gallery img");
-    const quotes = document.querySelectorAll(".quote");
-    const bg = document.querySelector(".testimonial-bg");
-    const dotsContainer = document.querySelector(".dots");
-    const prevBtn = document.getElementById("prev");
-    const nextBtn = document.getElementById("next");
-    const section = document.querySelector(".testimonial-section");
-
-    let index = 0;
-    let interval;
-    let startX = 0;
-    let endX = 0;
-
-    // Create dots
-    images.forEach((_, i) => {
-      const dot = document.createElement("button");
-      dot.addEventListener("click", () => showImage(i));
-      dotsContainer.appendChild(dot);
-    });
-    const dots = dotsContainer.querySelectorAll("button");
-
-    function showImage(i) {
-      images.forEach((img, n) => img.classList.toggle("active", n === i));
-      quotes.forEach((q, n) => q.classList.toggle("active", n === i));
-      dots.forEach((dot, n) => dot.classList.toggle("active", n === i));
-      bg.style.backgroundImage = `url(${images[i].src})`;
-      index = i;
-    }
-
-    function next() {
-      index = (index + 1) % images.length;
-      showImage(index);
-    }
-
-    function prev() {
-      index = (index - 1 + images.length) % images.length;
-      showImage(index);
-    }
-
-    nextBtn.addEventListener("click", next);
-    prevBtn.addEventListener("click", prev);
-
-    // Auto slide
-    function startAuto() {
-      interval = setInterval(next, 4000);
-    }
-    function stopAuto() {
-      clearInterval(interval);
-    }
-
-    section.addEventListener("mouseenter", stopAuto);
-    section.addEventListener("mouseleave", startAuto);
-
-    // Mobile swipe
-    section.addEventListener("touchstart", (e) => {
-      startX = e.touches[0].clientX;
-    });
-    section.addEventListener("touchend", (e) => {
-      endX = e.changedTouches[0].clientX;
-      const diff = startX - endX;
-      if (Math.abs(diff) > 50) diff > 0 ? next() : prev();
-    });
-
-    // Initialize
-    showImage(index);
-    startAuto();
- </script>
- <script>
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('service-worker.js')
-    .then(() => console.log('✅ Service Worker Registered'))
-    .catch(err => console.error('❌ Service Worker Failed', err));
-}
- </script>
-
-<!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/10.12.3/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.3/firebase-database-compat.js"></script>
-
-<script>
-const firebaseConfig = {
-  apiKey: "AIzaSyB1zNzsKmXXLVsOVGnVeGwlT_0uX3XqdO0",
-  authDomain: "pipahcookies-order.firebaseapp.com",
-  databaseURL: "https://pipahcookies-order-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "pipahcookies-order",
-  storageBucket: "pipahcookies-order.firebasestorage.app",
-  messagingSenderId: "1038900448087",
-  appId: "1:1038900448087:web:a46586f21e9ae989708c12"
-};
-
-// Initialize Firebase
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
-
-// update counters
-async function updateCounters() {
-  const totalRef = db.ref("visitors/total");
-  const uniqueRef = db.ref("visitors/unique");
-
-  // increase total every visit
-  totalRef.transaction(count => (count || 0) + 1);
-
-  // count unique per device/browser
-  if (!localStorage.getItem("pipahcookies_visited")) {
-    uniqueRef.transaction(count => (count || 0) + 1);
-    localStorage.setItem("pipahcookies_visited", "true");
-  }
-
-  // live update display
-totalRef.on("value", snap => {
-  const el = document.getElementById("visitorCount");
-  if (el) el.textContent = snap.val() || 0;
-});
-
-uniqueRef.on("value", snap => {
-  const el = document.getElementById("uniqueCount");
-  if (el) el.textContent = snap.val() || 0;
-});
- }
-
-updateCounters();
-</script>
-
-<!-- Display -->
-<div style="text-align:center;margin-top:20px;font-family:sans-serif;">
-  🍪 Visitors: <span id="visitorCount">0</span><br>
-  🌍 Visitors International: <span id="uniqueCount">0</span>
-</div>
- <!-- 🌟 PipahCookies Install Suggestion Popup -->
-<style>
-#pipahInstallPopup {
-  position: fixed;
-  bottom: -70px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(255,248,242,0.92);
-  border: 1.5px solid var(--primary,#A67734);
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-  padding: 8px 18px;
-  font-family: "Poppins",sans-serif;
-  text-align: center;
-  z-index: 9999;
-  display: none;
-  transition: bottom .4s ease, opacity .4s ease;
-  opacity: 0;
-}
-#pipahInstallPopup.show {
-  display: block;
-  bottom: 20px;
-  opacity: 1;
-}
-#pipahInstallPopup p {
-  color: var(--primary,#A67734);
-  font-weight: 600;
-  margin: 0;
-  cursor: pointer;
-}
-#pipahInstallPopup .closeBtn {
-  position: absolute;
-  top: 2px;
-  right: 8px;
-  font-size: 16px;
-  color: #666;
-  cursor: pointer;
-}
-</style>
-
-<div id="pipahInstallPopup">
-  <span class="closeBtn" onclick="closePipahPopup()">×</span>
-  <p id="pipahInstallText"></p>
-</div>
-
-<script>
-let deferredPrompt = null;
-let installReady = false;
-let isInstalled = false;
-
-// ✅ Detect if app already installed
-window.addEventListener("appinstalled", () => {
-  isInstalled = true;
-  localStorage.setItem("pipahInstalled", "true");
-  closePipahPopup();
-});
-if (window.matchMedia('(display-mode: standalone)').matches || localStorage.getItem("pipahInstalled") === "true") {
-  isInstalled = true;
-}
-
-// ✅ Catch browser install prompt
-window.addEventListener("beforeinstallprompt", (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-  installReady = true;
-});
-
-// ✅ Update popup text based on device & availability
-function updateInstallText() {
-  const text = document.getElementById("pipahInstallText");
-  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
-
-  if (isIOS) {
-    text.textContent = "Add to Homescreen ⬇️";
-    text.onclick = null;
-  } else if (installReady && deferredPrompt) {
-    text.textContent = "Install PipahCookies now";
-    text.onclick = async () => {
-      deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
-      if (outcome === "accepted") {
-        console.log("PWA Installed!");
-        localStorage.setItem("pipahInstalled", "true");
-      }
-      deferredPrompt = null;
-      closePipahPopup();
-    };
-  } else {
-    text.textContent = "Install PipahCookies now";
-    text.onclick = () => alert("Use Chrome, Edge, or Brave to install PipahCookies.");
-  }
-}
-
-// ✅ Show popup after 5 seconds if not installed
-window.addEventListener("load", () => {
-  if (!isInstalled) {
-    setTimeout(() => {
-      const popup = document.getElementById("pipahInstallPopup");
-      updateInstallText();
-      popup.style.display = "block";
-      setTimeout(() => popup.classList.add("show"), 50);
-    }, 5000);
-  }
-});
-
-// ✅ Close button function
-function closePipahPopup() {
-  const popup = document.getElementById("pipahInstallPopup");
-  popup.classList.remove("show");
-  setTimeout(() => popup.style.display = "none", 400);
-}
-</script>
-
-<!-- 🌟 Footer Install Button -->
-<style>
-  #footerInstallBtn {
-    background: var(--primary, #A67734);
-    color: #fff;
-    border: none;
-    border-radius: 25px;
-    padding: 10px 22px;
-    font-family: "Poppins", sans-serif;
-    font-weight: 600;
-    font-size: 16px;
-    cursor: pointer;
-    transition: all 0.25s ease;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-    display: none; /* hidden until prompt available */
-    margin-top: 12px;
-  }
-  #footerInstallBtn:hover {
-    background: var(--primary-dark, #8b5e2b);
-    transform: translateY(-2px);
-  }
-
   /* iOS hint popup */
   #iosHintPopup {
     position: fixed;
@@ -1711,7 +1336,7 @@ document.addEventListener("DOMContentLoaded", () => {
       alert("Please use Chrome, Edge, or Brave to install PipahCookies app.");
     }
   });
-
+ 
   // ✅ Auto-hide button if already installed
   if (isInStandaloneMode || window.matchMedia("(display-mode: standalone)").matches) {
     installBtn.style.display = "none";
@@ -1751,107 +1376,6 @@ document.addEventListener("DOMContentLoaded", () => {
       iframe.style.height = e.data.galleryHeight + 'px';
     }
   });
- </script>
- <script>
-// === DISCOUNT CONFIG ===
-const MOQ = 7;              // Minimum quantity per product for discount
-const DISCOUNT_PERCENT = 7; // Discount % (change later if needed)
-
-// ✅ Modify your changeProductQty to refresh display
-function changeProductQty(productId, delta) {
-  const input = document.getElementById('qty-' + productId);
-  if (!input) return;
-  let v = Math.max(0, parseInt(input.value || '0') + delta);
-  input.value = v;
-  updateDiscountDisplay(productId, v);
-}
-
-// ✅ Show/Hide red discount text beside price
-function updateDiscountDisplay(productId, qty) {
-  const productCard = document.querySelector(`[onclick*="${productId}"]`)?.closest('.product-card');
-  if (!productCard) return;
-
-  // find or create discount span
-  let discountEl = productCard.querySelector('.discount-text');
-  if (!discountEl) {
-    discountEl = document.createElement('span');
-    discountEl.className = 'discount-text';
-    discountEl.style.color = 'red';
-    discountEl.style.fontWeight = '700';
-    discountEl.style.marginLeft = '6px';
-    const priceEl = productCard.querySelector('.price');
-    if (priceEl) priceEl.parentNode.appendChild(discountEl);
-  }
-
-  // show or hide based on qty
-  if (qty >= MOQ) {
-    discountEl.textContent = `-${DISCOUNT_PERCENT}% OFF`;
-  } else {
-    discountEl.textContent = '';
-  }
-}
-
-// ✅ Adjust updateCartUI to apply discounts
-const originalUpdateCartUI = updateCartUI;
-updateCartUI = function() {
-  const list = document.getElementById('cart-items');
-  const totalEl = document.getElementById('cart-total');
-  const badge = document.getElementById('cart-badge');
-  list.innerHTML = '';
-  let subtotal = 0, totalDiscount = 0, count = 0;
-
-  cart.forEach((item, idx) => {
-    let price = item.price;
-    let itemTotal = price * item.qty;
-    count += item.qty;
-
-    // Apply discount if MOQ reached
-    if (item.qty >= MOQ) {
-      const discount = (itemTotal * DISCOUNT_PERCENT) / 100;
-      totalDiscount += discount;
-      itemTotal -= discount;
-    }
-
-    subtotal += itemTotal;
-
-    const li = document.createElement('li');
-    li.innerHTML = `
-      <div style="flex:1;">
-        <strong>${escapeHtml(item.name)}</strong>
-        <div style="font-size:12px;color:#666">
-          RM ${(itemTotal).toFixed(2)}
-          ${item.qty >= MOQ ? `<span style="color:red;">(-${DISCOUNT_PERCENT}%)</span>` : ''}
-        </div>
-      </div>
-      <div>
-        <button onclick="changeCartQty(${idx},-1)">−</button>
-        <span style="font-weight:700;"> ${item.qty} </span>
-        <button onclick="changeCartQty(${idx},1)">+</button>
-      </div>
-      <div><button style="background:#ff4d4d;color:#fff;border:none;padding:6px 8px;border-radius:6px;" onclick="removeCartItem(${idx})">x</button></div>
-    `;
-    list.appendChild(li);
-  });
-
-  // Postage (reuse your existing logic)
-  const method = document.getElementById('delivery-method')?.value || "pickup";
-  let postage = 0;
-  for (let tier of postageTiers) {
-    if (count <= tier.max) { postage = method === "delivery" ? tier.fee : 0; break; }
-  }
-
-  const finalTotal = subtotal + postage;
-
-  totalEl.innerHTML = `
-    <div style="font-size:14px;color:#555">Discount: <span style="color:red;">−RM ${totalDiscount.toFixed(2)}</span></div>
-    <div style="font-size:14px;color:#555">Subtotal: RM ${(subtotal + totalDiscount).toFixed(2)}</div>
-    <div style="font-size:14px;color:#555">Postage: RM ${postage.toFixed(2)} (${method.toUpperCase()})</div>
-    <strong style="font-size:16px">Jumlah: RM ${finalTotal.toFixed(2)}</strong>
-  `;
-
-  badge.textContent = count;
-  saveCart();
-};
  </script>
  
 </body>
