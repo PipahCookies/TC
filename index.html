@@ -1673,6 +1673,107 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
  </script>
+ <script>
+// === DISCOUNT CONFIG ===
+const MOQ = 7;              // Minimum quantity per product for discount
+const DISCOUNT_PERCENT = 7; // Discount % (change later if needed)
+
+// ✅ Modify your changeProductQty to refresh display
+function changeProductQty(productId, delta) {
+  const input = document.getElementById('qty-' + productId);
+  if (!input) return;
+  let v = Math.max(0, parseInt(input.value || '0') + delta);
+  input.value = v;
+  updateDiscountDisplay(productId, v);
+}
+
+// ✅ Show/Hide red discount text beside price
+function updateDiscountDisplay(productId, qty) {
+  const productCard = document.querySelector(`[onclick*="${productId}"]`)?.closest('.product-card');
+  if (!productCard) return;
+
+  // find or create discount span
+  let discountEl = productCard.querySelector('.discount-text');
+  if (!discountEl) {
+    discountEl = document.createElement('span');
+    discountEl.className = 'discount-text';
+    discountEl.style.color = 'red';
+    discountEl.style.fontWeight = '700';
+    discountEl.style.marginLeft = '6px';
+    const priceEl = productCard.querySelector('.price');
+    if (priceEl) priceEl.parentNode.appendChild(discountEl);
+  }
+
+  // show or hide based on qty
+  if (qty >= MOQ) {
+    discountEl.textContent = `-${DISCOUNT_PERCENT}% OFF`;
+  } else {
+    discountEl.textContent = '';
+  }
+}
+
+// ✅ Adjust updateCartUI to apply discounts
+const originalUpdateCartUI = updateCartUI;
+updateCartUI = function() {
+  const list = document.getElementById('cart-items');
+  const totalEl = document.getElementById('cart-total');
+  const badge = document.getElementById('cart-badge');
+  list.innerHTML = '';
+  let subtotal = 0, totalDiscount = 0, count = 0;
+
+  cart.forEach((item, idx) => {
+    let price = item.price;
+    let itemTotal = price * item.qty;
+    count += item.qty;
+
+    // Apply discount if MOQ reached
+    if (item.qty >= MOQ) {
+      const discount = (itemTotal * DISCOUNT_PERCENT) / 100;
+      totalDiscount += discount;
+      itemTotal -= discount;
+    }
+
+    subtotal += itemTotal;
+
+    const li = document.createElement('li');
+    li.innerHTML = `
+      <div style="flex:1;">
+        <strong>${escapeHtml(item.name)}</strong>
+        <div style="font-size:12px;color:#666">
+          RM ${(itemTotal).toFixed(2)}
+          ${item.qty >= MOQ ? `<span style="color:red;">(-${DISCOUNT_PERCENT}%)</span>` : ''}
+        </div>
+      </div>
+      <div>
+        <button onclick="changeCartQty(${idx},-1)">−</button>
+        <span style="font-weight:700;"> ${item.qty} </span>
+        <button onclick="changeCartQty(${idx},1)">+</button>
+      </div>
+      <div><button style="background:#ff4d4d;color:#fff;border:none;padding:6px 8px;border-radius:6px;" onclick="removeCartItem(${idx})">x</button></div>
+    `;
+    list.appendChild(li);
+  });
+
+  // Postage (reuse your existing logic)
+  const method = document.getElementById('delivery-method')?.value || "pickup";
+  let postage = 0;
+  for (let tier of postageTiers) {
+    if (count <= tier.max) { postage = method === "delivery" ? tier.fee : 0; break; }
+  }
+
+  const finalTotal = subtotal + postage;
+
+  totalEl.innerHTML = `
+    <div style="font-size:14px;color:#555">Discount: <span style="color:red;">−RM ${totalDiscount.toFixed(2)}</span></div>
+    <div style="font-size:14px;color:#555">Subtotal: RM ${(subtotal + totalDiscount).toFixed(2)}</div>
+    <div style="font-size:14px;color:#555">Postage: RM ${postage.toFixed(2)} (${method.toUpperCase()})</div>
+    <strong style="font-size:16px">Jumlah: RM ${finalTotal.toFixed(2)}</strong>
+  `;
+
+  badge.textContent = count;
+  saveCart();
+};
+ </script>
  
 </body>
 </html>
