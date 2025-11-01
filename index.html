@@ -1132,6 +1132,116 @@ function updateCartUI(){
   /* ---------- Toggle cart panel (slide) ---------- */
   function toggleCart(){
     const panel = document.getElementById('cart-panel');
+    const isShown = panel.classList.contains('showasync function sendOrder() {
+  const orderId = document.getElementById('orderId').value;
+  const name = document.getElementById('full-name').value.trim();
+  const address = document.getElementById('full-address').value.trim();
+  const method = document.getElementById('delivery-method')?.value || "pickup";
+
+  if (!name || !address) {
+    alert('Sila isi Nama penuh dan Alamat penuh.');
+    return;
+  }
+  if (cart.length === 0) {
+    alert('Troli kosong!');
+    return;
+  }
+
+  let subtotal = 0;
+  let qtyTotal = 0;
+  let totalDiscount = 0;
+  let msg = `🧾 *Pesanan Baru Pipah Cookies*\nNo. Pesanan: ${orderId}\n-------------------------\nNama: ${name}\nAlamat: ${address}\nPenerimaan: ${method.toUpperCase()}\n\n🍪 *Butiran Pesanan:*\n`;
+  let pdfText = `PipahCookies - Resit Pesanan\n\nNo. Pesanan: ${orderId}\nNama: ${name}\nAlamat: ${address}\nPenerimaan: ${method.toUpperCase()}\n\nButiran Pesanan:\n`;
+
+  cart.forEach(i => {
+    qtyTotal += i.qty;
+    let originalPrice = i.price;
+    let discountedPrice = originalPrice;
+    let discountText = '';
+
+    if (i.qty >= MOQ) {
+      discountedPrice = originalPrice * (1 - DISCOUNT_PERCENT / 100);
+      const discountAmt = (originalPrice - discountedPrice) * i.qty;
+      totalDiscount += discountAmt;
+      discountText = ` (−${DISCOUNT_PERCENT}% OFF)`;
+    }
+
+    const itemTotal = discountedPrice * i.qty;
+    subtotal += itemTotal;
+
+    if (i.qty >= MOQ) {
+      msg += `${i.qty} × ${i.name}${discountText}\n→ (RM${originalPrice.toFixed(2)} → RM${discountedPrice.toFixed(2)} each) = RM${itemTotal.toFixed(2)}\n`;
+      pdfText += `${i.qty} × ${i.name}${discountText}\n  RM${originalPrice.toFixed(2)} → RM${discountedPrice.toFixed(2)} = RM${itemTotal.toFixed(2)}\n`;
+    } else {
+      msg += `${i.qty} × ${i.name} = RM${itemTotal.toFixed(2)}\n`;
+      pdfText += `${i.qty} × ${i.name} = RM${itemTotal.toFixed(2)}\n`;
+    }
+  });
+
+  let postage = 0;
+  if (method === "delivery") {
+    const tiers = [
+      { max: 3, fee: 5 },
+      { max: 6, fee: 8 },
+      { max: 999, fee: 12 }
+    ];
+    for (let tier of tiers) {
+      if (qtyTotal <= tier.max) {
+        postage = tier.fee;
+        break;
+      }
+    }
+  }
+
+  const finalTotal = subtotal + postage;
+  msg += `\n💸 Diskaun Jumlah: -RM ${totalDiscount.toFixed(2)}\nSubtotal: RM ${(subtotal + totalDiscount).toFixed(2)}\nPostage (${method.toUpperCase()}): RM ${postage.toFixed(2)}\n👉 *Jumlah Akhir: RM ${finalTotal.toFixed(2)}*\n\nTerima kasih membeli *PipahCookies 🍪*`;
+
+  pdfText += `\nDiskaun Jumlah: -RM ${totalDiscount.toFixed(2)}\nSubtotal: RM ${(subtotal + totalDiscount).toFixed(2)}\nPostage (${method.toUpperCase()}): RM ${postage.toFixed(2)}\nJumlah Akhir: RM ${finalTotal.toFixed(2)}\n\nTerima kasih membeli PipahCookies 🍪`;
+
+  // ✅ Store PDF text temporarily for download
+  window.currentInvoice = { orderId, pdfText };
+
+  // ✅ Show floating popup
+  const popup = document.getElementById('invoicePopup');
+  document.getElementById('invoicePopupText').textContent = `💾 Muat turun invoice (${orderId})?`;
+  popup.classList.add('show');
+
+  // ✅ Continue WhatsApp redirect
+  incrementOrderCounter();
+  document.getElementById("orderId").value = getNextOrderNumber();
+  const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`;
+  window.open(url, '_blank');
+}
+
+// ✅ Popup handlers
+function hideInvoicePopup() {
+  document.getElementById('invoicePopup').classList.remove('show');
+}
+function downloadInvoice() {
+  const { jsPDF } = window.jspdf;
+  const data = window.currentInvoice;
+  if (!data) return;
+  const pdf = new jsPDF();
+  pdf.setFontSize(12);
+  pdf.text(data.pdfText, 15, 20);
+  pdf.save(`PipahCookies_${data.orderId}.pdf`);
+  hideInvoicePopup();
+}');
+    if (isShown) panel.classList.remove('show'); else panel.classList.add('show');
+    panel.setAttribute('aria-hidden', isShown ? 'true' : 'false');
+  }
+
+  /* ---------- Show checkout form ---------- */
+  function showCheckoutForm(){
+    document.getElementById('checkout-form').classList.remove('hidden');
+    document.getElementById('open-checkout').style.display = 'none';
+    const panel = document.getElementById('cart-panel');
+    panel.scrollTop = panel.scrollHeight;
+  }
+
+  /* ---------- Toggle cart panel (slide) ---------- */
+  function toggleCart(){
+    const panel = document.getElementById('cart-panel');
     const isShown = panel.classList.contains('show');
     if (isShown) panel.classList.remove('show'); else panel.classList.add('show');
     panel.setAttribute('aria-hidden', isShown ? 'true' : 'false');
@@ -1171,6 +1281,18 @@ document.addEventListener("DOMContentLoaded", () => {
    
  /* ---------- Send order via WhatsApp ---------- */
 function sendOrder() {
+
+
+
+ /* ---------- Storage helpers ---------- */
+  function saveCart(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(cart)); }
+  function escapeHtml(text){ return String(text).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+
+
+const music = document.getElementById('bgmusic');
+const btn = document.getElementById('musicBtn');
+const text = document.getElementById('musicText');
+const wrapper = document.getElementasync function sendOrder() {
   const orderId = document.getElementById('orderId').value;
   const name = document.getElementById('full-name').value.trim();
   const address = document.getElementById('full-address').value.trim();
@@ -1187,22 +1309,35 @@ function sendOrder() {
 
   let subtotal = 0;
   let qtyTotal = 0;
-  let msg = `🧾 *Pesanan Baru Pipah Cookies*\n` +
-            `No. Pesanan: ${orderId}\n` +
-            `-------------------------\n` +
-            `Nama: ${name}\n` +
-            `Alamat: ${address}\n` +
-            `Penerimaan: ${method.toUpperCase()}\n\n` +
-            `Pesanan:\n`;
+  let totalDiscount = 0;
+  let msg = `🧾 *Pesanan Baru Pipah Cookies*\nNo. Pesanan: ${orderId}\n-------------------------\nNama: ${name}\nAlamat: ${address}\nPenerimaan: ${method.toUpperCase()}\n\n🍪 *Butiran Pesanan:*\n`;
+  let pdfText = `PipahCookies - Resit Pesanan\n\nNo. Pesanan: ${orderId}\nNama: ${name}\nAlamat: ${address}\nPenerimaan: ${method.toUpperCase()}\n\nButiran Pesanan:\n`;
 
   cart.forEach(i => {
-    const itemTotal = i.price * i.qty;
-    subtotal += itemTotal;
     qtyTotal += i.qty;
-    msg += `${i.qty} × ${i.name} (RM ${itemTotal.toFixed(2)})\n`;
+    let originalPrice = i.price;
+    let discountedPrice = originalPrice;
+    let discountText = '';
+
+    if (i.qty >= MOQ) {
+      discountedPrice = originalPrice * (1 - DISCOUNT_PERCENT / 100);
+      const discountAmt = (originalPrice - discountedPrice) * i.qty;
+      totalDiscount += discountAmt;
+      discountText = ` (−${DISCOUNT_PERCENT}% OFF)`;
+    }
+
+    const itemTotal = discountedPrice * i.qty;
+    subtotal += itemTotal;
+
+    if (i.qty >= MOQ) {
+      msg += `${i.qty} × ${i.name}${discountText}\n→ (RM${originalPrice.toFixed(2)} → RM${discountedPrice.toFixed(2)} each) = RM${itemTotal.toFixed(2)}\n`;
+      pdfText += `${i.qty} × ${i.name}${discountText}\n  RM${originalPrice.toFixed(2)} → RM${discountedPrice.toFixed(2)} = RM${itemTotal.toFixed(2)}\n`;
+    } else {
+      msg += `${i.qty} × ${i.name} = RM${itemTotal.toFixed(2)}\n`;
+      pdfText += `${i.qty} × ${i.name} = RM${itemTotal.toFixed(2)}\n`;
+    }
   });
 
-  // --- kira postage ikut pilihan method ---
   let postage = 0;
   if (method === "delivery") {
     const tiers = [
@@ -1219,27 +1354,39 @@ function sendOrder() {
   }
 
   const finalTotal = subtotal + postage;
-  msg += `\nSubtotal: RM ${subtotal.toFixed(2)}`;
-  msg += `\nPostage (${method.toUpperCase()}): RM ${postage.toFixed(2)}`;
-  msg += `\n👉 Jumlah Akhir: RM ${finalTotal.toFixed(2)}`;
-   // 🆕 Tambah kenaikan nombor pesanan selepas hantar
+  msg += `\n💸 Diskaun Jumlah: -RM ${totalDiscount.toFixed(2)}\nSubtotal: RM ${(subtotal + totalDiscount).toFixed(2)}\nPostage (${method.toUpperCase()}): RM ${postage.toFixed(2)}\n👉 *Jumlah Akhir: RM ${finalTotal.toFixed(2)}*\n\nTerima kasih membeli *PipahCookies 🍪*`;
+
+  pdfText += `\nDiskaun Jumlah: -RM ${totalDiscount.toFixed(2)}\nSubtotal: RM ${(subtotal + totalDiscount).toFixed(2)}\nPostage (${method.toUpperCase()}): RM ${postage.toFixed(2)}\nJumlah Akhir: RM ${finalTotal.toFixed(2)}\n\nTerima kasih membeli PipahCookies 🍪`;
+
+  // ✅ Store PDF text temporarily for download
+  window.currentInvoice = { orderId, pdfText };
+
+  // ✅ Show floating popup
+  const popup = document.getElementById('invoicePopup');
+  document.getElementById('invoicePopupText').textContent = `💾 Muat turun invoice (${orderId})?`;
+  popup.classList.add('show');
+
+  // ✅ Continue WhatsApp redirect
   incrementOrderCounter();
   document.getElementById("orderId").value = getNextOrderNumber();
-
   const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`;
   window.open(url, '_blank');
-} function escapeHtml(text){ return String(text).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+}
 
-
- /* ---------- Storage helpers ---------- */
-  function saveCart(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(cart)); }
-  function escapeHtml(text){ return String(text).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
-
-
-const music = document.getElementById('bgmusic');
-const btn = document.getElementById('musicBtn');
-const text = document.getElementById('musicText');
-const wrapper = document.getElementById('musicWrapper');
+// ✅ Popup handlers
+function hideInvoicePopup() {
+  document.getElementById('invoicePopup').classList.remove('show');
+}
+function downloadInvoice() {
+  const { jsPDF } = window.jspdf;
+  const data = window.currentInvoice;
+  if (!data) return;
+  const pdf = new jsPDF();
+  pdf.setFontSize(12);
+  pdf.text(data.pdfText, 15, 20);
+  pdf.save(`PipahCookies_${data.orderId}.pdf`);
+  hideInvoicePopup();
+}ById('musicWrapper');
 let isPlaying = false;
 let savedTime = 0;
 let reminderShown = false;
